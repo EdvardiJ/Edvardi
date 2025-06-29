@@ -8,8 +8,11 @@
     <style>
         /* Define custom colors not directly from XP.css palette but needed for specific accents */
         :root {
-            --bg: #1e1e1e; /* Still used for body background */
-            --highlight-blue: #000080; /* A more XP-like blue for highlights */
+            /* Changed --bg to the new default background color */
+            --bg: #3C6EA6; 
+            /* Adjusted highlight blue for better contrast against the new background if needed */
+            --highlight-blue: #FFFFFF; /* Changed to white for better readability on blue background */
+            --bold-text-color: #102442; /* New variable for bold text color */
         }
 
         /* Basic Reset & Sizing - Essential for desktop layout */
@@ -24,9 +27,8 @@
             /* XP.css sets default font, but we keep system font for authenticity */
             font-family: 'Segoe UI', 'MS Sans Serif', Arial, sans-serif; 
             color: ButtonText; /* XP.css default text color for UI elements */
-            /* UPDATED BACKGROUND FOR BLISS PHOTO WITH LOCAL RELATIVE PATH */
-            background: var(--bg) url('/Website/bliss.png') no-repeat center center fixed; /* Relative path */
-            background-size: cover; /* Ensures the image covers the entire background */
+            /* UPDATED BACKGROUND: Removed image reference, set to solid color */
+            background-color: var(--bg); /* Use the new background color */
             overflow: hidden; /* Prevent body scrolling */
         }
 
@@ -97,8 +99,9 @@
             background: Window; /* Standard XP.css window background color */
         }
 
+        /* Bold text color override for readability */
         .content strong {
-            color: var(--highlight-blue); /* Custom highlight for strong text */
+            color: var(--bold-text-color); /* Set bold text to dark blue */
         }
         .content ul {
             padding-left: 1.5rem;
@@ -189,7 +192,7 @@
             border: 1px solid ThreeDDarkShadow; /* Match XP.css field borders */
         }
         .skills-list li b { /* Target bold tags directly for consistency */
-            color: WindowText; /* Ensure bold text is visible */
+            color: var(--bold-text-color); /* Set bold text to dark blue */
         }
 
         /* Taskbar - Essential layout and positioning, XP.css provides background */
@@ -226,8 +229,14 @@
             color: HighlightText;
         }
 
-        a { color: ButtonText; text-decoration: none; } /* Default XP.css link color */
-        a:hover { text-decoration: underline; }
+        /* Improved readability for links */
+        a { 
+            color: Highlight; /* Changed to XP.css Highlight color for better visibility */
+            text-decoration: none; 
+        } 
+        a:hover { 
+            text-decoration: underline; 
+        }
 
         /* Start Menu Styling - Essential layout and positioning, XP.css provides background */
         #start-menu {
@@ -235,10 +244,11 @@
             bottom: 50px; /* Above the taskbar */
             left: 0;
             width: 250px;
-            /* XP.css handles general menu styling (background, borders, shadow) */
+            /* IMPORTANT: XP.css provides background, borders, and shadow for elements with class 'window' */
+            /* We also need to set display: none initially as JS controls its visibility */
             z-index: 1001; /* Above taskbar and windows */
             display: none; /* Controlled by JS */
-            flex-direction: column;
+            flex-direction: column; /* Ensure vertical layout of its content */
             padding-bottom: 2px;
         }
 
@@ -363,7 +373,8 @@
         <button class="icon-btn" data-window-id="contact">📬 Contact</button>
     </div>
 
-    <div id="start-menu" class="window"> <div class="start-menu-header">
+    <div id="start-menu" class="window"> 
+        <div class="start-menu-header">
             Edvardi Jackson
         </div>
         <ul class="start-menu-items">
@@ -381,10 +392,15 @@
 
     <div class="window" id="about">
         <div class="title-bar" onmousedown="startDrag(event, this)">
-            <div class="title-bar-text">About Me</div> <div class="title-bar-controls"> <button aria-label="Minimize" onclick="toggleWindow('about');"></button> <button aria-label="Maximize" onclick="/* Add maximize functionality here */"></button> <button aria-label="Close" onclick="closeWindow('about')"></button>
+            <div class="title-bar-text">About Me</div> 
+            <div class="title-bar-controls"> 
+                <button aria-label="Minimize" onclick="toggleWindow('about');"></button> 
+                <button aria-label="Maximize" onclick="/* Add maximize functionality here */"></button> 
+                <button aria-label="Close" onclick="closeWindow('about')"></button>
             </div>
         </div>
-        <div class="window-body content"> <p><strong>Edvardi Jackson</strong> is a versatile journalist, a driven entrepreneur, and a skilled videographer with a passion for objective storytelling. He is the Founder and CEO of KirMedia and The World Telegram News, dedicated to delivering transparent and impartial news.</p>
+        <div class="window-body content"> 
+            <p><strong>Edvardi Jackson</strong> is a versatile journalist, a driven entrepreneur, and a skilled videographer with a passion for objective storytelling. He is the Founder and CEO of KirMedia and The World Telegram News, dedicated to delivering transparent and impartial news.</p>
         </div>
     </div>
 
@@ -400,8 +416,7 @@
         <div class="window-body content">
             <p>I specialize in comprehensive story development, electronic news gathering (ENG), compelling interviewing, precise news writing, and engaging voiceover/on-camera presentations. My work spans the entire production process from concept to final delivery.</p>
             <div class="sub-box">
-                <iframe width="560" height="315" src="https://www.youtube.com/watch?v=N54kf_I5Pak" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
-            </div>
+				<iframe width="560" height="315" src="https://www.youtube.com/embed/N54kf_I5Pak?si=__05JHGbY0rJAP_d" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>            </div>
         </div>
     </div>
 
