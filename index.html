@@ -563,6 +563,7 @@
         document.addEventListener('click', (event) => {
             if (startMenu.style.display === 'flex' && !startMenu.contains(event.target) && event.target !== startButton) {
                 hideStartMenu();
+			startMenu.classList.remove('show');
             }
         });
 
