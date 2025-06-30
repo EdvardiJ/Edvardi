@@ -252,6 +252,11 @@
             padding-bottom: 2px;
         }
 
+	#start-menu.show {
+    		display: flex;
+ 		flex-direction: column;
+	}	
+
         /* Start Menu Header - Use XP.css colors for authentic look */
         .start-menu-header {
             background-color: ActiveCaption; /* XP.css default active caption color (blue gradient) */
@@ -549,9 +554,10 @@
 
         // Toggle Start Menu visibility
         startButton.addEventListener('click', (event) => {
-            event.stopPropagation(); // Prevent document click from immediately closing it
-            startMenu.style.display = startMenu.style.display === 'flex' ? 'none' : 'flex';
-        });
+    		event.stopPropagation(); // Prevent document click from immediately closing it
+    		startMenu.classList.toggle('show');
+	});
+
 
         // Close Start Menu if clicked outside
         document.addEventListener('click', (event) => {
