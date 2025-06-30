@@ -1,255 +1,707 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Edvardi's Desktop</title>
-  <link rel="stylesheet" href="https://unpkg.com/xp.css" />
-  <style>
-    :root {
-      --bg: #3c6ea6;
-      --highlight-blue: #ffffff;
-      --bold-text-color: #102442;
-    }
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Edvardi's Desktop</title>
+    <link rel="stylesheet" href="https://unpkg.com/xp.css">
+    <style>
+        /* Define custom colors not directly from XP.css palette but needed for specific accents */
+        :root {
+            /* Changed --bg to the new default background color */
+            --bg: #3C6EA6; 
+            /* Adjusted highlight blue for better contrast against the new background if needed */
+            --highlight-blue: #FFFFFF; /* Changed to white for better readability on blue background */
+            --bold-text-color: #102442; /* New variable for bold text color */
+        }
 
-    *, *::before, *::after {
-      box-sizing: border-box;
-    }
+        /* Basic Reset & Sizing - Essential for desktop layout */
+        * {
+            box-sizing: border-box;
+        }
 
-    html, body {
-      margin: 0;
-      padding: 0;
-      height: 100%;
-      font-family: 'Segoe UI', 'MS Sans Serif', Arial, sans-serif;
-      color: ButtonText;
-      background-color: var(--bg);
-      overflow: hidden;
-    }
+        html, body {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            /* XP.css sets default font, but we keep system font for authenticity */
+            font-family: 'Segoe UI', 'MS Sans Serif', Arial, sans-serif; 
+            color: ButtonText; /* XP.css default text color for UI elements */
+            /* UPDATED BACKGROUND: Removed image reference, set to solid color */
+            background-color: var(--bg); /* Use the new background color */
+            overflow: hidden; /* Prevent body scrolling */
+        }
 
-    .desktop-icon-bar {
-      position: fixed;
-      top: 1rem;
-      left: 1rem;
-      display: flex;
-      flex-direction: column;
-      gap: 1rem;
-      z-index: 1000;
-    }
+        /* Desktop Icon Bar - Essential layout and positioning */
+        .desktop-icon-bar {
+            position: fixed;
+            top: 1rem;
+            left: 1rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            z-index: 1000; /* Ensure icons are on top */
+        }
 
-    .icon-btn {
-      min-width: 100px;
-      text-align: left;
-      cursor: pointer;
-    }
+        /* Icon Buttons - Layout/sizing, XP.css handles visual style */
+        .icon-btn {
+            min-width: 100px;
+            text-align: left;
+            /* XP.css handles background, border, color, padding, font-weight, border-radius, cursor */
+            /* Removed previous custom hover/transition, let XP.css handle button appearance */
+        }
+        
+        /* Window Base Styles - Essential layout and positioning */
+        .window {
+            position: absolute;
+            top: 100px;
+            left: 150px;
+            width: 400px;
+            max-width: 90vw;
+            /* XP.css provides background, border, shadow for .window */
+            z-index: 1; /* Default z-index for windows */
+            display: none; /* Controlled by JS */
+            opacity: 0; /* For smooth transition */
+            transform: scale(0.95); /* For smooth transition */
+            transition: opacity 0.2s ease-out, transform 0.2s ease-out; /* Smooth transitions */
+        }
 
-    .window {
-      position: absolute;
-      top: 100px;
-      left: 150px;
-      width: 400px;
-      max-width: 90vw;
-      z-index: 1;
-      display: none;
-      opacity: 0;
-      transform: scale(0.95);
-      transition: opacity 0.2s ease-out, transform 0.2s ease-out;
-    }
+        /* Title Bar - Essential layout and cursor */
+        .title-bar {
+            cursor: move;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            user-select: none;
+            /* XP.css handles background, padding, font, and border-bottom for title-bar */
+        }
 
-    .window.active {
-      display: block;
-      opacity: 1;
-      transform: scale(1);
-    }
+        .title-bar h3 {
+            margin: 0; /* Override XP.css potential margins */
+            font-size: 1rem; /* Specific font size */
+        }
 
-    .title-bar {
-      cursor: move;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      user-select: none;
-    }
+        /* Close Button - Basic sizing, XP.css handles visual style */
+        .close-btn {
+            font-weight: bold;
+            font-size: 1rem;
+            cursor: pointer;
+            padding: 0 0.5rem;
+            /* XP.css handles background, border, color, hover for standard buttons */
+        }
 
-    .title-bar h3 {
-      margin: 0;
-      font-size: 1rem;
-    }
+        /* Content Area - Essential padding and scrolling */
+        .content {
+            padding: 1rem;
+            max-height: 60vh; /* Limits content height to prevent overly tall windows */
+            overflow-y: auto;
+            color: WindowText; /* Standard XP.css window text color */
+            background: Window; /* Standard XP.css window background color */
+        }
 
-    .content {
-      padding: 1rem;
-      max-height: 60vh;
-      overflow-y: auto;
-      color: WindowText;
-      background: Window;
-    }
+        /* Bold text color override for readability */
+        .content strong {
+            color: var(--bold-text-color); /* Set bold text to dark blue */
+        }
+        .content ul {
+            padding-left: 1.5rem;
+            margin-bottom: 1rem;
+        }
+        .content ul li {
+            margin-bottom: 0.4rem;
+        }
 
-    .content strong {
-      color: var(--bold-text-color);
-    }
+        /* Responsive YouTube embed - Essential layout */
+        .sub-box {
+            position: relative;
+            padding-bottom: 56.25%; /* 16:9 aspect ratio */
+            height: 0;
+            overflow: hidden;
+            background-color: #000; /* Background when video not loaded */
+            border-radius: 4px;
+        }
+        .sub-box iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: 0;
+        }
 
-    .taskbar {
-      position: fixed;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      height: 50px;
-      display: flex;
-      align-items: center;
-      padding: 0 0.5rem;
-      z-index: 999;
-    }
+        /* Resume section specific styles - Adjust to XP.css context */
+        .resume-button {
+            /* XP.css provides button styling. We just need width, text-align, etc. */
+            width: 100%;
+            text-align: left;
+            margin: 0.4rem 0; /* Keep vertical spacing */
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .resume-button.active-resume-item {
+            /* Apply XP.css-like active styles */
+            border-style: inset; /* Simulates pressed state */
+            background-color: Highlight; /* XP.css highlight color */
+            color: HighlightText; /* XP.css highlight text color */
+        }
 
-    .start-btn {
-      margin-right: 0.5rem;
-    }
+        .resume-details {
+            max-height: 0; /* Controlled by JS for animation */
+            overflow: hidden;
+            padding: 0 0.5rem; /* Controlled by JS for animation */
+            /* XP.css will style the overall container (background, etc.) */
+            border-left: 4px solid ThreeDDarkShadow; /* Use XP.css color, or custom accent if preferred */
+            margin-bottom: 1rem;
+            opacity: 0;
+            transition: max-height 0.4s ease-out, padding 0.4s ease-out, opacity 0.4s ease-out;
+        }
+        .resume-details.show {
+            max-height: 500px;
+            padding: 0.8rem 0.5rem;
+            opacity: 1;
+        }
+        .resume-details ul {
+            margin-top: 0.5rem;
+            margin-bottom: 0.5rem;
+            list-style: disc; /* Ensure disc bullets */
+        }
 
-    .task-icon {
-      padding: 0.4rem 0.8rem;
-      margin-right: 0.3rem;
-      cursor: pointer;
-    }
+        .resume-section-title {
+            font-size: 1.2em;
+            margin-top: 1.5em;
+            margin-bottom: 0.5em;
+            color: WindowText; /* XP.css default text color */
+            border-bottom: 1px solid ThreeDDarkShadow; /* XP.css color for line */
+            padding-bottom: 0.2em;
+        }
+        .skills-list {
+            list-style: none;
+            padding: 0;
+            display: block; /* Ensures each li takes full width */
+            margin-top: 1rem;
+        }
+        .skills-list li {
+            background-color: Field; /* XP.css field background */
+            border-radius: 0; /* XP.css usually has square corners */
+            padding: 0.3rem 0.7rem;
+            font-size: 0.9rem;
+            color: WindowText; /* XP.css text color */
+            margin-bottom: 0.5rem; /* Add space between items in column */
+            display: block; /* Ensure each li is a block for column layout */
+            border: 1px solid ThreeDDarkShadow; /* Match XP.css field borders */
+        }
+        .skills-list li b { /* Target bold tags directly for consistency */
+            color: var(--bold-text-color); /* Set bold text to dark blue */
+        }
 
-    .task-icon.active {
-      border-style: inset;
-      background-color: Highlight;
-      color: HighlightText;
-    }
+        /* Taskbar - Essential layout and positioning, XP.css provides background */
+        .taskbar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            padding: 0 0.5rem;
+            z-index: 999;
+            /* XP.css provides the background gradient and border top for taskbar */
+        }
 
-    #start-menu {
-      position: absolute;
-      bottom: 50px;
-      left: 0;
-      width: 250px;
-      display: none;
-      flex-direction: column;
-      padding-bottom: 2px;
-      z-index: 1001;
-    }
+        /* Start Button - XP.css handles styling, ensure positioning */
+        .start-btn {
+            margin-right: 0.5rem;
+            /* XP.css will style the button visually */
+        }
 
-    .start-menu-header {
-      background-color: ActiveCaption;
-      color: CaptionText;
-      padding: 0.5rem 0.8rem;
-      font-weight: bold;
-      font-size: 1.1rem;
-      writing-mode: vertical-lr;
-      transform: rotate(180deg);
-      height: 100%;
-      position: absolute;
-      left: 0;
-      top: 0;
-      border-right: 1px solid ButtonShadow;
-    }
+        /* Task Icon - Adjust to XP.css buttons */
+        .task-icon {
+            padding: 0.4rem 0.8rem;
+            margin-right: 0.3rem;
+            cursor: pointer;
+            /* XP.css handles button styling */
+        }
+        .task-icon.active {
+            /* Apply XP.css-like active button state */
+            border-style: inset; /* Simulates pressed state */
+            background-color: Highlight;
+            color: HighlightText;
+        }
 
-    .start-menu-items {
-      list-style: none;
-      padding: 0;
-      margin-left: 40px;
-      width: calc(100% - 40px);
-    }
+        /* Improved readability for links */
+        a { 
+            color: Highlight; /* Changed to XP.css Highlight color for better visibility */
+            text-decoration: none; 
+        } 
+        a:hover { 
+            text-decoration: underline; 
+        }
 
-    .start-menu-item {
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      padding: 0.4rem 1rem;
-      color: MenuText;
-      font-size: 0.95rem;
-      cursor: pointer;
-      text-decoration: none;
-    }
+        /* Start Menu Styling - Essential layout and positioning, XP.css provides background */
+        #start-menu {
+            position: absolute;
+            bottom: 50px; /* Above the taskbar */
+            left: 0;
+            width: 250px;
+            /* IMPORTANT: XP.css provides background, borders, and shadow for elements with class 'window' */
+            /* We also need to set display: none initially as JS controls its visibility */
+            z-index: 1001; /* Above taskbar and windows */
+            display: none; /* Controlled by JS */
+            flex-direction: column; /* Ensure vertical layout of its content */
+            padding-bottom: 2px;
+        }
 
-    .start-menu-item.separator {
-      border-top: 1px solid ThreeDDarkShadow;
-      border-bottom: 1px solid ThreeDLightShadow;
-      height: 2px;
-      margin: 4px 0;
-      padding: 0;
-      background: transparent;
-      cursor: default;
-    }
+        /* Start Menu Header - Use XP.css colors for authentic look */
+        .start-menu-header {
+            background-color: ActiveCaption; /* XP.css default active caption color (blue gradient) */
+            color: CaptionText; /* XP.css default caption text color (white) */
+            padding: 0.5rem;
+            font-weight: bold;
+            font-size: 1.1rem;
+            display: flex;
+            align-items: center;
+            writing-mode: vertical-lr;
+            text-orientation: mixed;
+            transform: rotate(180deg);
+            height: 100%;
+            position: absolute;
+            left: 0;
+            top: 0;
+            padding-left: 0.8rem;
+            padding-right: 0.8rem;
+            border-right: 1px solid ButtonShadow; /* Use XP.css button shadow color for separation */
+        }
 
-    .start-menu-item.separator:hover {
-      background: transparent;
-    }
+        .start-menu-items {
+            list-style: none;
+            padding: 0;
+            margin-left: 40px;
+            width: calc(100% - 40px);
+        }
 
-    a {
-      color: Highlight;
-      text-decoration: none;
-    }
+        .start-menu-item {
+            display: block;
+            padding: 0.4rem 1rem;
+            color: MenuText; /* XP.css menu text color (black) */
+            text-decoration: none;
+            font-size: 0.95rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            /* XP.css provides menu item hover effects automatically */
+        }
+        /* Specific item for separator */
+        .start-menu-item.separator {
+            border-top: 1px solid ThreeDDarkShadow; /* XP.css colors */
+            border-bottom: 1px solid ThreeDLightShadow; /* XP.css colors */
+            height: 2px;
+            margin: 4px 0;
+            padding: 0;
+            background: transparent;
+            cursor: default;
+        }
+        .start-menu-item.separator:hover {
+            background: transparent; /* Override XP.css hover on separator */
+        }
 
-    a:hover {
-      text-decoration: underline;
-    }
-  </style>
+        /* Media Queries for Responsiveness - Essential layout */
+        @media (max-width: 768px) {
+            .desktop-icon-bar {
+                flex-direction: row;
+                top: auto;
+                bottom: 60px; /* Above taskbar */
+                left: 0;
+                right: 0;
+                justify-content: center;
+                flex-wrap: wrap;
+                background: rgba(0,0,0,0.4); /* Keep transparent background for mobile icon bar */
+                padding: 0.5rem;
+                border-top: 1px solid rgba(255,255,255,0.1);
+            }
+            .icon-btn {
+                min-width: unset;
+                padding: 0.5rem 0.8rem;
+                font-size: 0.9em;
+            }
+
+            .window {
+                width: 95vw;
+                height: 80vh;
+                top: 5vh !important;
+                left: 2.5vw !important;
+                position: fixed; /* Fix position for mobile, prevent dragging */
+            }
+
+            .title-bar {
+                cursor: default;
+            }
+            .content {
+                max-height: calc(80vh - 50px);
+            }
+
+            #start-menu {
+                left: 5vw;
+                width: 90vw;
+            }
+            .start-menu-header {
+                writing-mode: horizontal-tb;
+                transform: rotate(0deg);
+                height: auto;
+                width: 100%;
+                position: relative;
+                text-align: center;
+                border-right: none;
+                border-bottom: 1px solid ThreeDDarkShadow;
+                padding: 0.5rem;
+                margin-left: 0;
+            }
+            .start-menu-items {
+                margin-left: 0;
+                width: 100%;
+            }
+        }
+    </style>
 </head>
 <body>
-  <div class="desktop-icon-bar">
-    <button class="icon-btn" data-window-id="about">🧠 About</button>
-    <button class="icon-btn" data-window-id="work">🎥 Work</button>
-    <button class="icon-btn" data-window-id="resume">📄 Resume</button>
-    <button class="icon-btn" data-window-id="contact">📬 Contact</button>
-  </div>
 
-  <div id="start-menu" class="window">
-    <div class="start-menu-header">Edvardi Jackson</div>
-    <ul class="start-menu-items">
-      <li><a href="https://www.theworldtelegram.com" target="_blank" class="start-menu-item">📰 The World Telegram News</a></li>
-      <li><a href="https://www.thekircompany.com" target="_blank" class="start-menu-item">🏢 The Kir Company</a></li>
-      <li class="start-menu-item separator"></li>
-      <li><a href="#" class="start-menu-item" onclick="toggleWindow('game-2048'); hideStartMenu(); return false;">🎮 2048 Game</a></li>
-    </ul>
-  </div>
-
-  <div class="taskbar">
-    <button class="start-btn" id="start-button">Start</button>
-    <div id="task-icons"></div>
-  </div>
-
-  <div class="window" id="about">
-    <div class="title-bar">
-      <div class="title-bar-text">About Me</div>
-      <div class="title-bar-controls">
-        <button aria-label="Minimize" onclick="toggleWindow('about')"></button>
-        <button aria-label="Maximize"></button>
-        <button aria-label="Close" onclick="closeWindow('about')"></button>
-      </div>
+    <div class="desktop-icon-bar">
+        <button class="icon-btn" data-window-id="about">🧠 About</button>
+        <button class="icon-btn" data-window-id="work">🎥 Work</button>
+        <button class="icon-btn" data-window-id="resume">📄 Resume</button>
+        <button class="icon-btn" data-window-id="contact">📬 Contact</button>
     </div>
-    <div class="window-body content">
-      <p><strong>Edvardi Jackson</strong> is a versatile journalist, a driven entrepreneur, and a skilled videographer with a passion for objective storytelling. He is the Founder and CEO of KirMedia and The World Telegram News, dedicated to delivering transparent and impartial news.</p>
+
+    <div id="start-menu" class="window"> 
+        <div class="start-menu-header">
+            Edvardi Jackson
+        </div>
+        <ul class="start-menu-items">
+            <li><a href="https://www.theworldtelegram.com" target="_blank" class="start-menu-item">📰 The World Telegram News</a></li>
+            <li><a href="https://www.thekircompany.com" target="_blank" class="start-menu-item">🏢 The Kir Company</a></li>
+            <li class="start-menu-item separator"></li>
+            <li><a href="#" class="start-menu-item" onclick="toggleWindow('game-2048'); hideStartMenu(); return false;">🎮 2048 Game</a></li>
+        </ul>
     </div>
-  </div>
 
-  <script>
-    const startButton = document.getElementById('start-button');
-    const startMenu = document.getElementById('start-menu');
+    <div class="taskbar">
+        <button class="start-btn" id="start-button">Start</button>
+        <div id="task-icons"></div>
+    </div>
 
-    startButton.addEventListener('click', () => {
-      startMenu.style.display = startMenu.style.display === 'flex' ? 'none' : 'flex';
-    });
+    <div class="window" id="about">
+        <div class="title-bar" onmousedown="startDrag(event, this)">
+            <div class="title-bar-text">About Me</div> 
+            <div class="title-bar-controls"> 
+                <button aria-label="Minimize" onclick="toggleWindow('about');"></button> 
+                <button aria-label="Maximize" onclick="/* Add maximize functionality here */"></button> 
+                <button aria-label="Close" onclick="closeWindow('about')"></button>
+            </div>
+        </div>
+        <div class="window-body content"> 
+            <p><strong>Edvardi Jackson</strong> is a versatile journalist, a driven entrepreneur, and a skilled videographer with a passion for objective storytelling. He is the Founder and CEO of KirMedia and The World Telegram News, dedicated to delivering transparent and impartial news.</p>
+        </div>
+    </div>
 
-    document.querySelectorAll('.icon-btn').forEach(button => {
-      button.addEventListener('click', () => {
-        const id = button.dataset.windowId;
-        toggleWindow(id);
-      });
-    });
+    <div class="window" id="work">
+        <div class="title-bar" onmousedown="startDrag(event, this)">
+            <div class="title-bar-text">My Work</div>
+            <div class="title-bar-controls">
+                <button aria-label="Minimize" onclick="toggleWindow('work');"></button>
+                <button aria-label="Maximize" onclick="/* Add maximize functionality here */"></button>
+                <button aria-label="Close" onclick="closeWindow('work')"></button>
+            </div>
+        </div>
+        <div class="window-body content">
+            <p>I specialize in comprehensive story development, electronic news gathering (ENG), compelling interviewing, precise news writing, and engaging voiceover/on-camera presentations. My work spans the entire production process from concept to final delivery.</p>
+            <div class="sub-box">
+				<iframe width="560" height="315" src="https://www.youtube.com/embed/N54kf_I5Pak?si=__05JHGbY0rJAP_d" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>            </div>
+        </div>
+    </div>
 
-    function toggleWindow(id) {
-      const win = document.getElementById(id);
-      if (win.classList.contains('active')) {
-        win.classList.remove('active');
-      } else {
-        win.classList.add('active');
-      }
-    }
+    <div class="window" id="resume">
+        <div class="title-bar" onmousedown="startDrag(event, this)">
+            <div class="title-bar-text">Resume</div>
+            <div class="title-bar-controls">
+                <button aria-label="Minimize" onclick="toggleWindow('resume');"></button>
+                <button aria-label="Maximize" onclick="/* Add maximize functionality here */"></button>
+                <button aria-label="Close" onclick="closeWindow('resume')"></button>
+            </div>
+        </div>
+        <div class="window-body content">
+            <h4 class="resume-section-title">Experience</h4>
+            <button class="resume-button" data-details-id="r1">📌 The World Telegram News</button>
+            <div class="resume-details" id="r1">
+                <p><strong>Founder, Multimedia Journalist</strong> (JUN 2021 - PRESENT)</p>
+                <ul>
+                    <li>Founded independent news service at 15.</li>
+                    <li>Engineered custom software/hardware solutions for automated news production processes.</li>
+                    <li>Grew audience by 81% in 2025. In total, we've reached nearly 1,000,000 viewers.</li>
+                    <li>Coordinated and reported on-scene for critical events including protests and elections.</li>
+                </ul>
+            </div>
+            <button class="resume-button" data-details-id="r2">💻 Google CodeNext, New York, NY</button>
+            <div class="resume-details" id="r2">
+                <p><strong>Summer Intern</strong> (NOV 2020 - JUN 2021)</p>
+                <ul>
+                    <li>Selected for Google-sponsored tech immersion program (early career).</li>
+                    <li>Developed foundational programming and web skills through real-world projects.</li>
+                </ul>
+            </div>
+            <button class="resume-button" data-details-id="r3">📰 The Buffalo Hive, Buffalo, NY</button>
+            <div class="resume-details" id="r3">
+                <p><strong>Freelance Journalist</strong> (APR 2025 - PRESENT)</p>
+                <ul>
+                    <li>Worked for an arts and culture news publication, specializing in covering historically marginalized communities.</li>
+                    <li>Conducted in-depth interviews and produces multimedia content for diverse platforms.</li>
+                    <li>Applied meticulous research to cover complex social topics.</li>
+                </ul>
+            </div>
+            <button class="resume-button" data-details-id="r4">🎙️ WBNY 91.3FM, Buffalo, NY</button>
+            <div class="resume-details" id="r4">
+                <p><strong>News Director</strong> (MAY 2025 - PRESENT)<br>
+                   <strong>News Anchor</strong> (OCT 2024 - MAY 2025)</p>
+                <ul>
+                    <li>Promoted to News Director; previously served as News Anchor.</li>
+                    <li>Directed and anchored live broadcasts, managing content creation and on-air operations.</li>
+                    <li>Mastered 12-channel audio mixer, and managed broadcast equipment (TASCAM, ZOOM).</li>
+                </ul>
+            </div>
+          	<button class="resume-button" data-details-id="r5">💻 CUTCO/Vector Marketing, Buffalo, NY</button>
+            <div class="resume-details" id="r2">
+                <p><strong>Independent CUTCO Sales Representative</strong> (SUMMER 2025)</p>
+                <ul>
+                    <li>Kicked off my sales experience by generating $300+ in first-week product sales through direct outreach and client presentations.</li>
+                    <li>Managed personal pipeline of prospects using company's proprietary CRM tools.</li>
+                </ul>
+            </div>
 
-    function closeWindow(id) {
-      document.getElementById(id).classList.remove('active');
-    }
+            <h4 class="resume-section-title">Skills</h4>
+            <ul class="skills-list">
+                <li><b>Video Production:</b> <br><b>Directing</b>, <br><b>writing</b>, <br><b>video editing</b> (Adobe Premiere, Davinci Resolve), <br><b>camera operation</b> (HD/4K), <br><b>lighting</b>, <br><b>technical direction</b> (Blackmagic ATEM 4K)</li>
+                <li><b>Audio Production:</b> <br><b>Audio Processing and Editing</b> (Audacity, Adobe Audition, Garageband, Logic Pro)</li>
+                <li><b>Computer Applications:</b> <br><b>Google Workspace</b>, <br><b>Microsoft Office</b>, <br><b>Scrivener</b>, <br><b>MotionMixes</b>, <br><b>Canva</b>, <br><b>Adobe After Effects</b>, <br><b>Affinity Designer</b></li>
+                <li><b>News:</b> <br><b>Electronic Newsgathering</b>, <br><b>News Writing</b>, <br><b>AP ENPS</b>, <br><b>Reuters Connect</b>, <br><b>Rundown Creator</b>, <br><b>Media Relations</b>, <br><b>Community Outreach</b></li>
+                <li><b>Other:</b> <br><b>Audience Retention</b>, <br><b>Mentoring</b>, <br><b>Conflict Resolution</b>, <br><b>Brand Communication</b>, <br><b>Relationship Building</b>, <br><b>Collaboration</b>, <br><b>Project Oversight</b>, <br><b>Content Planning</b>, <br><b>Crisis Management/PR</b>, <br><b>Problem-Solving</b></li>
+            </ul>
+        </div>
+    </div>
 
-    function hideStartMenu() {
-      startMenu.style.display = 'none';
-    }
-  </script>
+    <div class="window" id="contact">
+        <div class="title-bar" onmousedown="startDrag(event, this)">
+            <div class="title-bar-text">Contact</div>
+            <div class="title-bar-controls">
+                <button aria-label="Minimize" onclick="toggleWindow('contact');"></button>
+                <button aria-label="Maximize" onclick="/* Add maximize functionality here */"></button>
+                <button aria-label="Close" onclick="closeWindow('contact')"></button>
+            </div>
+        </div>
+        <div class="window-body content">
+            <p>Interested in connecting or collaborating? I’d love to hear from you!</p>
+            <p>Email: <a href="mailto:edvardi.mk2@gmail.com">edvardi.mk2@gmail.com</a></p>
+            <p>Reporter Reel: <a href="your-reel-link-here" target="_blank">View Here</a></p>
+            <p>Follow me on:
+                <a href="https://x.com/EdvardiJ" target="_blank">X (Twitter)</a> |
+                <a href="https://www.linkedin.com/in/edvardij/" target="_blank">LinkedIn</a> |
+                <a href="https://www.instagram.com/edvardij/" target="_blank">Instagram</a>
+            </p>
+        </div>
+    </div>
+
+    <div class="window" id="game-2048">
+        <div class="title-bar" onmousedown="startDrag(event, this)">
+            <div class="title-bar-text">🎮 2048 Game</div>
+            <div class="title-bar-controls">
+                <button aria-label="Minimize" onclick="toggleWindow('game-2048');"></button>
+                <button aria-label="Maximize" onclick="/* Add maximize functionality here */"></button>
+                <button aria-label="Close" onclick="closeWindow('game-2048')"></button>
+            </div>
+        </div>
+        <div class="window-body content">
+            <iframe src="https://2048game.com/" frameborder="0" style="width:100%; height:400px; display:block;"></iframe>
+        </div>
+    </div>
+
+    <script>
+        let offsetX, offsetY, topZ = 10;
+        const taskIconsContainer = document.getElementById("task-icons");
+        const openWindows = new Set(); // To keep track of currently open windows
+        const startButton = document.getElementById('start-button');
+        const startMenu = document.getElementById('start-menu');
+
+        // Event delegation for desktop icons
+        document.querySelectorAll('.desktop-icon-bar .icon-btn').forEach(button => {
+            button.addEventListener('click', () => {
+                const windowId = button.dataset.windowId;
+                toggleWindow(windowId);
+                hideStartMenu(); // Hide start menu if open
+            });
+        });
+
+        // Event delegation for resume buttons
+        document.querySelectorAll('.resume-button').forEach(button => {
+            button.addEventListener('click', () => {
+                const detailsId = button.dataset.detailsId;
+                toggleDetails(detailsId, button);
+            });
+        });
+
+        // Toggle Start Menu visibility
+        startButton.addEventListener('click', (event) => {
+            event.stopPropagation(); // Prevent document click from immediately closing it
+            startMenu.style.display = startMenu.style.display === 'flex' ? 'none' : 'flex';
+        });
+
+        // Close Start Menu if clicked outside
+        document.addEventListener('click', (event) => {
+            if (startMenu.style.display === 'flex' && !startMenu.contains(event.target) && event.target !== startButton) {
+                hideStartMenu();
+            }
+        });
+
+        function hideStartMenu() {
+            startMenu.style.display = 'none';
+        }
+
+
+        // Function to start dragging a window
+        function startDrag(e, bar) {
+            // Disable dragging on mobile devices (based on media query breakpoint)
+            if (window.innerWidth < 768) return;
+
+            const win = bar.parentElement;
+            focusWindow(win); // Bring window to front on drag start
+            
+            offsetX = e.clientX - win.offsetLeft;
+            offsetY = e.clientY - win.offsetTop;
+
+            function move(e) {
+                win.style.left = `${e.clientX - offsetX}px`;
+                win.style.top = `${e.clientY - offsetY}px`;
+            }
+
+            function stop() {
+                document.removeEventListener('mousemove', move);
+                document.removeEventListener('mouseup', stop);
+            }
+
+            document.addEventListener('mousemove', move);
+            document.addEventListener('mouseup', stop);
+        }
+
+        // Function to toggle resume details visibility
+        function toggleDetails(id, buttonElement) {
+            const el = document.getElementById(id);
+            // Check if currently shown
+            const isShowing = el.classList.contains('show');
+
+            // Close all other open resume details in this window's content
+            const allDetails = buttonElement.closest('.content').querySelectorAll('.resume-details');
+            allDetails.forEach(detail => {
+                if (detail.id !== id && detail.classList.contains('show')) {
+                    detail.classList.remove('show');
+                    // Find the corresponding button and deactivate it
+                    const correspondingButton = document.querySelector(`button[data-details-id="${detail.id}"]`);
+                    if (correspondingButton) {
+                        correspondingButton.classList.remove('active-resume-item');
+                    }
+                }
+            });
+
+            // Toggle the clicked one
+            el.classList.toggle('show');
+            buttonElement.classList.toggle('active-resume-item');
+        }
+
+        // Function to open/toggle/focus a window and manage taskbar icons
+        function toggleWindow(id) {
+            const win = document.getElementById(id);
+            const isWindowVisible = win.style.display === 'block' && win.style.opacity === '1';
+
+            if (isWindowVisible) {
+                // Window is currently open, so close it
+                closeWindow(id);
+            } else {
+                // Window is not open, so open it
+                win.style.display = 'block'; // Make it visible for transition
+                win.style.opacity = '0'; // Start invisible
+                win.style.transform = 'scale(0.95)'; // Start scaled down
+
+                // Force reflow for transition to work
+                void win.offsetWidth; 
+
+                win.style.opacity = '1'; // Fade in
+                win.style.transform = 'scale(1)'; // Scale up
+                focusWindow(win); // Bring to front
+
+                // Add to taskbar if not already there
+                if (!openWindows.has(id)) {
+                    openWindows.add(id);
+                    const btn = document.createElement('button');
+                    btn.className = 'task-icon';
+                    btn.id = `task-${id}`;
+                    // Changed to target title-bar-text for innerText
+                    btn.innerText = win.querySelector('.title-bar-text').innerText.replace('🎮 ', ''); 
+                    btn.onclick = () => focusWindow(win); // Clicking task icon focuses the window
+                    taskIconsContainer.appendChild(btn);
+                }
+                updateTaskbarActiveState();
+            }
+        }
+
+        // Function to close a window
+        function closeWindow(id) {
+            const win = document.getElementById(id);
+            win.style.opacity = '0';
+            win.style.transform = 'scale(0.95)';
+            win.addEventListener('transitionend', function handler() {
+                win.style.display = 'none';
+                win.removeEventListener('transitionend', handler);
+                openWindows.delete(id); // Remove from open windows set
+                const taskIcon = document.getElementById(`task-${id}`);
+                if (taskIcon) {
+                    taskIconsContainer.removeChild(taskIcon);
+                }
+                updateTaskbarActiveState();
+            }, { once: true }); // Ensure handler runs only once
+        }
+
+        // Function to bring a window to the front and update taskbar
+        function focusWindow(win) {
+            topZ++;
+            win.style.zIndex = topZ;
+            updateTaskbarActiveState(win.id);
+        }
+
+        // Update active state of taskbar icons
+        function updateTaskbarActiveState(focusedId) {
+            document.querySelectorAll('.task-icon').forEach(icon => {
+                const windowId = icon.id.replace('task-', '');
+                if (windowId === focusedId) {
+                    icon.classList.add('active');
+                } else {
+                    icon.classList.remove('active');
+                }
+            });
+        }
+
+        // Set up initial state: ensure all windows are hidden initially, and potentially open one by default
+        document.addEventListener('DOMContentLoaded', () => {
+            document.querySelectorAll('.window').forEach(win => {
+                win.style.display = 'none'; // Ensure they are all hidden by default
+                win.style.opacity = '0';
+                win.style.transform = 'scale(0.95)';
+            });
+            // Optionally open the 'about' window on load
+            toggleWindow('about');
+        });
+
+        // Add event listener to each window to bring it to front on click
+        document.querySelectorAll('.window').forEach(win => {
+            win.addEventListener('mousedown', () => focusWindow(win));
+        });
+
+    </script>
 </body>
 </html>
