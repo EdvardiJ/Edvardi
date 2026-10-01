@@ -1,714 +1,1528 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8"/>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>Edvardi's Desktop</title>
-    <link rel="stylesheet" href="https://unpkg.com/xp.css">
-    <style>
-        /* Define custom colors not directly from XP.css palette but needed for specific accents */
-        :root {
-            /* Changed --bg to the new default background color */
-            --bg: #3C6EA6; 
-            /* Adjusted highlight blue for better contrast against the new background if needed */
-            --highlight-blue: #FFFFFF; /* Changed to white for better readability on blue background */
-            --bold-text-color: #102442; /* New variable for bold text color */
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Edvardi Jackson</title>
+<meta name="description" content="Edvardi Jackson: journalist, videographer and founder of KirNews (formerly The World Telegram News). Published clips at portfolio.edvardi.com.">
+<link rel="stylesheet" href="https://unpkg.com/7.css@0.21.1/dist/7.css">
+<style>
+  :root {
+    --taskbar-h: 40px;
+    --icon-label: #fff;
+    --select-bg: rgba(160, 205, 255, .28);
+    --select-bd: rgba(200, 230, 255, .7);
+    --glass-dark: rgba(18, 38, 66, .62);
+    --glass-edge: rgba(255, 255, 255, .28);
+  }
 
-        /* Basic Reset & Sizing - Essential for desktop layout */
-        * {
-            box-sizing: border-box;
-        }
+  * { box-sizing: border-box; }
 
-        html, body {
-            margin: 0;
-            padding: 0;
-            height: 100%;
-            /* XP.css sets default font, but we keep system font for authenticity */
-            font-family: 'Segoe UI', 'MS Sans Serif', Arial, sans-serif; 
-            color: ButtonText; /* XP.css default text color for UI elements */
-            /* UPDATED BACKGROUND: Removed image reference, set to solid color */
-            background-color: var(--bg); /* Use the new background color */
-            overflow: hidden; /* Prevent body scrolling */
-        }
+  html, body {
+    margin: 0;
+    height: 100%;
+    overflow: hidden;
+    font: 9pt "Segoe UI", "SegoeUI", "Noto Sans", sans-serif;
+    background: #0d4d93;
+    -webkit-tap-highlight-color: transparent;
+  }
 
-        /* Desktop Icon Bar - Essential layout and positioning */
-        .desktop-icon-bar {
-            position: fixed;
-            top: 1rem;
-            left: 1rem;
-            display: flex;
-            flex-direction: column;
-            gap: 1rem;
-            z-index: 1000; /* Ensure icons are on top */
-        }
+  /* Neutral reset for our own buttons so 7.css button chrome doesn't apply */
+  .plain {
+    all: unset;
+    box-sizing: border-box;
+    cursor: default;
+  }
+  .plain::before, .plain::after { content: none !important; display: none !important; }
+  .plain:focus-visible { outline: 1px dotted #fff; outline-offset: -3px; }
+  /* 7.css styles every <button> state (hover borders, focus pulse); neutralize for our chrome */
+  :is(#desktop, #taskbar, #start-menu) button.plain,
+  :is(#desktop, #taskbar, #start-menu) button.plain:focus {
+    border-color: transparent;
+    background-image: none;
+    box-shadow: none;
+    animation: none;
+    transition: none;
+  }
+  :is(#desktop, #taskbar, #start-menu) button.plain:focus-visible { outline: 1px dotted #fff; outline-offset: -3px; box-shadow: none; }
 
-        /* Icon Buttons - Layout/sizing, XP.css handles visual style */
-        .icon-btn {
-            min-width: 100px;
-            text-align: left;
-            /* XP.css handles background, border, color, padding, font-weight, border-radius, cursor */
-            /* Removed previous custom hover/transition, let XP.css handle button appearance */
-        }
-        
-        /* Window Base Styles - Essential layout and positioning */
-        .window {
-            position: absolute;
-            top: 100px;
-            left: 150px;
-            width: 400px;
-            max-width: 90vw;
-            /* XP.css provides background, border, shadow for .window */
-            z-index: 1; /* Default z-index for windows */
-            display: none; /* Controlled by JS */
-            opacity: 0; /* For smooth transition */
-            transform: scale(0.95); /* For smooth transition */
-            transition: opacity 0.2s ease-out, transform 0.2s ease-out; /* Smooth transitions */
-        }
+  svg.ico { flex: none; display: block; }
 
-        /* Title Bar - Essential layout and cursor */
-        .title-bar {
-            cursor: move;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            user-select: none;
-            /* XP.css handles background, padding, font, and border-bottom for title-bar */
-        }
+  /* ---------- Wallpaper ---------- */
+  #wallpaper {
+    position: fixed;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 38% 22% at 50% 56%, rgba(190, 235, 255, .55), transparent 70%),
+      radial-gradient(ellipse 90% 26% at 50% 60%, rgba(60, 160, 245, .5), transparent 72%),
+      radial-gradient(ellipse 70% 60% at 15% 100%, rgba(0, 30, 80, .55), transparent 70%),
+      linear-gradient(180deg, #0a3268 0%, #1462b4 46%, #0f58a8 60%, #072d5e 100%);
+    overflow: hidden;
+  }
+  #wallpaper::before, #wallpaper::after {
+    content: "";
+    position: absolute;
+    left: -20%;
+    width: 140%;
+    border-radius: 50%;
+    filter: blur(18px);
+  }
+  #wallpaper::before {
+    top: 48%;
+    height: 90px;
+    background: linear-gradient(90deg, transparent, rgba(120, 210, 255, .45) 30%, rgba(255, 255, 255, .5) 50%, rgba(120, 210, 255, .45) 70%, transparent);
+    transform: rotate(-6deg);
+  }
+  #wallpaper::after {
+    top: 58%;
+    height: 50px;
+    background: linear-gradient(90deg, transparent, rgba(80, 180, 255, .35) 40%, rgba(200, 240, 255, .35) 55%, transparent);
+    transform: rotate(5deg);
+  }
 
-        .title-bar h3 {
-            margin: 0; /* Override XP.css potential margins */
-            font-size: 1rem; /* Specific font size */
-        }
+  /* ---------- Desktop + icons ---------- */
+  #desktop {
+    position: fixed;
+    inset: 0 0 var(--taskbar-h) 0;
+    overflow: hidden;
+  }
 
-        /* Close Button - Basic sizing, XP.css handles visual style */
-        .close-btn {
-            font-weight: bold;
-            font-size: 1rem;
-            cursor: pointer;
-            padding: 0 0.5rem;
-            /* XP.css handles background, border, color, hover for standard buttons */
-        }
+  #icons {
+    position: absolute;
+    inset: 8px auto 8px 8px;
+    display: grid;
+    grid-auto-flow: column;
+    grid-template-rows: repeat(auto-fill, 86px);
+    grid-auto-columns: 82px;
+    gap: 4px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
 
-        /* Content Area - Essential padding and scrolling */
-        .content {
-            padding: 1rem;
-            max-height: 60vh; /* Limits content height to prevent overly tall windows */
-            overflow-y: auto;
-            color: WindowText; /* Standard XP.css window text color */
-            background: Window; /* Standard XP.css window background color */
-        }
+  #desktop .desk-icon {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    width: 82px;
+    height: 86px;
+    padding: 4px 2px;
+    border: 1px solid transparent;
+    border-radius: 3px;
+    color: var(--icon-label);
+    text-align: center;
+    text-decoration: none;
+    text-shadow: 0 1px 2px #000, 0 0 4px rgba(0, 0, 0, .7);
+    line-height: 1.25;
+    user-select: none;
+  }
+  .desk-icon svg { width: 48px; height: 48px; filter: drop-shadow(0 2px 2px rgba(0, 0, 0, .35)); }
+  #desktop .desk-icon:hover { background: rgba(255, 255, 255, .12); border-color: rgba(255, 255, 255, .3); }
+  #desktop .desk-icon.selected { background: var(--select-bg); border-color: var(--select-bd); }
+  .desk-icon:focus-visible { outline: 1px dotted #fff; outline-offset: -3px; }
 
-        /* Bold text color override for readability */
-        .content strong {
-            color: var(--bold-text-color); /* Set bold text to dark blue */
-        }
-        .content ul {
-            padding-left: 1.5rem;
-            margin-bottom: 1rem;
-        }
-        .content ul li {
-            margin-bottom: 0.4rem;
-        }
+  /* ---------- Windows ---------- */
+  .app-window {
+    position: absolute;
+    display: none;
+    flex-direction: column;
+    min-width: 260px;
+    min-height: 160px;
+  }
+  .app-window.open { display: flex; }
+  .app-window.minimized { display: none; }
+  .app-window > .title-bar { flex: none; touch-action: none; user-select: none; }
+  .app-window .title-bar-text { display: flex; align-items: center; gap: 6px; white-space: nowrap; overflow: hidden; }
+  .app-window .title-bar-text svg { width: 16px; height: 16px; }
+  .app-window > .window-body {
+    flex: 1;
+    min-height: 0;
+    overflow: auto;
+  }
+  .app-window > .status-bar, .app-window > .window-footer { flex: none; }
+  .app-window.maximized, .app-window.maximized::before, .app-window.maximized > .title-bar { border-radius: 0; }
 
-        /* Responsive YouTube embed - Essential layout */
-        .sub-box {
-            position: relative;
-            padding-bottom: 56.25%; /* 16:9 aspect ratio */
-            height: 0;
-            overflow: hidden;
-            background-color: #000; /* Background when video not loaded */
-            border-radius: 4px;
-        }
-        .sub-box iframe {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            border: 0;
-        }
+  /* Inactive windows: paler frame, like Win7 */
+  .app-window:not(.active)::before { filter: saturate(.35) brightness(1.15); }
+  .app-window:not(.active) .title-bar-text { opacity: .7; }
 
-        /* Resume section specific styles - Adjust to XP.css context */
-        .resume-button {
-            /* XP.css provides button styling. We just need width, text-align, etc. */
-            width: 100%;
-            text-align: left;
-            margin: 0.4rem 0; /* Keep vertical spacing */
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-        .resume-button.active-resume-item {
-            /* Apply XP.css-like active styles */
-            border-style: inset; /* Simulates pressed state */
-            background-color: Highlight; /* XP.css highlight color */
-            color: HighlightText; /* XP.css highlight text color */
-        }
+  body.dragging, body.dragging * { user-select: none !important; }
+  body.dragging iframe { pointer-events: none; }
 
-        .resume-details {
-            max-height: 0; /* Controlled by JS for animation */
-            overflow: hidden;
-            padding: 0 0.5rem; /* Controlled by JS for animation */
-            /* XP.css will style the overall container (background, etc.) */
-            border-left: 4px solid ThreeDDarkShadow; /* Use XP.css color, or custom accent if preferred */
-            margin-bottom: 1rem;
-            opacity: 0;
-            transition: max-height 0.4s ease-out, padding 0.4s ease-out, opacity 0.4s ease-out;
-        }
-        .resume-details.show {
-            max-height: 500px;
-            padding: 0.8rem 0.5rem;
-            opacity: 1;
-        }
-        .resume-details ul {
-            margin-top: 0.5rem;
-            margin-bottom: 0.5rem;
-            list-style: disc; /* Ensure disc bullets */
-        }
+  /* Resize handles */
+  .rz { position: absolute; z-index: 5; touch-action: none; }
+  .rz.n  { top: -4px; left: 6px; right: 6px; height: 8px; cursor: ns-resize; }
+  .rz.s  { bottom: -4px; left: 6px; right: 6px; height: 8px; cursor: ns-resize; }
+  .rz.e  { right: -4px; top: 6px; bottom: 6px; width: 8px; cursor: ew-resize; }
+  .rz.w  { left: -4px; top: 6px; bottom: 6px; width: 8px; cursor: ew-resize; }
+  .rz.ne { top: -4px; right: -4px; width: 12px; height: 12px; cursor: nesw-resize; }
+  .rz.nw { top: -4px; left: -4px; width: 12px; height: 12px; cursor: nwse-resize; }
+  .rz.se { bottom: -4px; right: -4px; width: 12px; height: 12px; cursor: nwse-resize; }
+  .rz.sw { bottom: -4px; left: -4px; width: 12px; height: 12px; cursor: nesw-resize; }
+  .app-window.maximized .rz { display: none; }
 
-        .resume-section-title {
-            font-size: 1.2em;
-            margin-top: 1.5em;
-            margin-bottom: 0.5em;
-            color: WindowText; /* XP.css default text color */
-            border-bottom: 1px solid ThreeDDarkShadow; /* XP.css color for line */
-            padding-bottom: 0.2em;
-        }
-        .skills-list {
-            list-style: none;
-            padding: 0;
-            display: block; /* Ensures each li takes full width */
-            margin-top: 1rem;
-        }
-        .skills-list li {
-            background-color: Field; /* XP.css field background */
-            border-radius: 0; /* XP.css usually has square corners */
-            padding: 0.3rem 0.7rem;
-            font-size: 0.9rem;
-            color: WindowText; /* XP.css text color */
-            margin-bottom: 0.5rem; /* Add space between items in column */
-            display: block; /* Ensure each li is a block for column layout */
-            border: 1px solid ThreeDDarkShadow; /* Match XP.css field borders */
-        }
-        .skills-list li b { /* Target bold tags directly for consistency */
-            color: var(--bold-text-color); /* Set bold text to dark blue */
-        }
+  #snap-preview {
+    position: absolute;
+    z-index: 99998;
+    display: none;
+    border: 1px solid rgba(255, 255, 255, .7);
+    border-radius: 6px;
+    background: rgba(170, 215, 255, .25);
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .25), 0 0 20px rgba(0, 0, 0, .25);
+    backdrop-filter: blur(3px);
+    transition: left .12s, top .12s, width .12s, height .12s;
+    pointer-events: none;
+  }
 
-        /* Taskbar - Essential layout and positioning, XP.css provides background */
-        .taskbar {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            height: 50px;
-            display: flex;
-            align-items: center;
-            padding: 0 0.5rem;
-            z-index: 999;
-            /* XP.css provides the background gradient and border top for taskbar */
-        }
+  /* ---------- Window contents ---------- */
+  .pad { padding: 12px; }
+  .stack > * + * { margin-top: 10px; }
+  p { margin: 0 0 8px; line-height: 1.45; }
+  h2 { font-size: 1.35em; font-weight: normal; color: #1e395b; margin: 0; }
+  h3 { font-size: 1.1em; font-weight: normal; color: #1e395b; margin: 0 0 4px; }
 
-        /* Start Button - XP.css handles styling, ensure positioning */
-        .start-btn {
-            margin-right: 0.5rem;
-            /* XP.css will style the button visually */
-        }
+  .profile { display: flex; gap: 12px; align-items: center; }
+  .avatar {
+    flex: none;
+    width: 64px;
+    height: 64px;
+    object-fit: cover;
+    border-radius: 4px;
+    border: 1px solid #5c7da3;
+    box-shadow: 0 0 0 2px #fff, 0 1px 4px 2px rgba(0, 0, 0, .3);
+    background: #1d2a3a;
+  }
+  .muted { color: #555; }
+  .btn-row { display: flex; flex-wrap: wrap; gap: 6px; }
+  .btn-row button { display: inline-flex; align-items: center; gap: 6px; }
+  .btn-row svg { width: 16px; height: 16px; }
 
-        /* Task Icon - Adjust to XP.css buttons */
-        .task-icon {
-            padding: 0.4rem 0.8rem;
-            margin-right: 0.3rem;
-            cursor: pointer;
-            /* XP.css handles button styling */
-        }
-        .task-icon.active {
-            /* Apply XP.css-like active button state */
-            border-style: inset; /* Simulates pressed state */
-            background-color: Highlight;
-            color: HighlightText;
-        }
+  .tabs { display: flex; flex-direction: column; height: 100%; padding: 8px; }
+  .tabs [role="tabpanel"] { flex: 1; min-height: 0; overflow: auto; margin-bottom: 0; }
 
-        /* Improved readability for links */
-        a { 
-            color: Highlight; /* Changed to XP.css Highlight color for better visibility */
-            text-decoration: none; 
-        } 
-        a:hover { 
-            text-decoration: underline; 
-        }
+  .video {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    background: #000;
+    border: 1px solid #8e8f8f;
+  }
+  .video iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
 
-        /* Start Menu Styling - Essential layout and positioning, XP.css provides background */
-        #start-menu {
-            position: absolute;
-            bottom: 50px; /* Above the taskbar */
-            left: 0;
-            width: 250px;
-            /* IMPORTANT: XP.css provides background, borders, and shadow for elements with class 'window' */
-            /* We also need to set display: none initially as JS controls its visibility */
-            z-index: 1001; /* Above taskbar and windows */
-            display: none; /* Controlled by JS */
-            flex-direction: column; /* Ensure vertical layout of its content */
-            padding-bottom: 2px;
-        }
+  .clip-card {
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+    padding: 10px;
+    border: 1px solid #cdd7db;
+    border-radius: 3px;
+    background: linear-gradient(#fff, #f3f7fb);
+  }
+  .clip-card svg { width: 48px; height: 48px; }
 
-	#start-menu.show {
-    		display: flex;
- 		flex-direction: column;
-	}	
+  .explorer { display: grid; grid-template-columns: minmax(180px, 34%) 1fr; gap: 8px; height: 100%; }
+  .explorer .tree-view { overflow: auto; }
+  .tree-view a { display: inline-flex; align-items: center; gap: 5px; padding: 1px 3px; border: 1px solid transparent; border-radius: 2px; cursor: default; }
+  .tree-view a svg { width: 16px; height: 16px; }
+  .tree-view a:hover { background: #e5f3fb; border-color: #70c0e7; }
+  .tree-view a[aria-current="true"] { background: #cce8ff; border-color: #99d1ff; }
+  .tree-view summary { cursor: default; }
+  .job { overflow: auto; padding: 4px 6px; }
+  .job ul { margin: 6px 0 0; padding-left: 18px; line-height: 1.45; }
+  .job .when { color: #555; margin-bottom: 2px; }
 
-        /* Start Menu Header - Use XP.css colors for authentic look */
-        .start-menu-header {
-            background-color: ActiveCaption; /* XP.css default active caption color (blue gradient) */
-            color: CaptionText; /* XP.css default caption text color (white) */
-            padding: 0.5rem;
-            font-weight: bold;
-            font-size: 1.1rem;
-            display: flex;
-            align-items: center;
-            writing-mode: vertical-lr;
-            text-orientation: mixed;
-            transform: rotate(180deg);
-            height: 100%;
-            position: absolute;
-            left: 0;
-            top: 0;
-            padding-left: 0.8rem;
-            padding-right: 0.8rem;
-            border-right: 1px solid ButtonShadow; /* Use XP.css button shadow color for separation */
-        }
+  .skills { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 8px; }
+  .skills fieldset { margin: 0; }
+  .skills ul { margin: 0; padding-left: 16px; line-height: 1.5; }
 
-        .start-menu-items {
-            list-style: none;
-            padding: 0;
-            margin-left: 40px;
-            width: calc(100% - 40px);
-        }
+  .contact-grid { display: grid; gap: 8px; }
+  .contact-grid fieldset { margin: 0; }
+  .contact-line { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
 
-        .start-menu-item {
-            display: block;
-            padding: 0.4rem 1rem;
-            color: MenuText; /* XP.css menu text color (black) */
-            text-decoration: none;
-            font-size: 0.95rem;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            /* XP.css provides menu item hover effects automatically */
-        }
-        /* Specific item for separator */
-        .start-menu-item.separator {
-            border-top: 1px solid ThreeDDarkShadow; /* XP.css colors */
-            border-bottom: 1px solid ThreeDLightShadow; /* XP.css colors */
-            height: 2px;
-            margin: 4px 0;
-            padding: 0;
-            background: transparent;
-            cursor: default;
-        }
-        .start-menu-item.separator:hover {
-            background: transparent; /* Override XP.css hover on separator */
-        }
+  .frame-body { padding: 0 !important; overflow: hidden !important; }
+  .frame-body iframe { display: block; width: 100%; height: 100%; border: 0; background: #faf8ef; }
 
-        /* Media Queries for Responsiveness - Essential layout */
-        @media (max-width: 768px) {
-            .desktop-icon-bar {
-                flex-direction: row;
-                top: auto;
-                bottom: 60px; /* Above taskbar */
-                left: 0;
-                right: 0;
-                justify-content: center;
-                flex-wrap: wrap;
-                background: rgba(0,0,0,0.4); /* Keep transparent background for mobile icon bar */
-                padding: 0.5rem;
-                border-top: 1px solid rgba(255,255,255,0.1);
-            }
-            .icon-btn {
-                min-width: unset;
-                padding: 0.5rem 0.8rem;
-                font-size: 0.9em;
-            }
+  .help-list { margin: 0; padding-left: 18px; line-height: 1.55; }
+  .help-list b { font-weight: 600; }
+  .demo { display: flex; gap: 10px; align-items: center; }
+  .demo svg { width: 32px; height: 32px; }
+  .help-footer { display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap; }
+  @media (max-width: 767px) { .desktop-only { display: none !important; } }
+  @media (min-width: 768px) { .mobile-only { display: none !important; } }
 
-            .window {
-                width: 95vw;
-                height: 80vh;
-                top: 5vh !important;
-                left: 2.5vw !important;
-                position: fixed; /* Fix position for mobile, prevent dragging */
-            }
+  /* ---------- Taskbar ---------- */
+  #taskbar {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: var(--taskbar-h);
+    z-index: 100000;
+    display: flex;
+    align-items: stretch;
+    background:
+      linear-gradient(rgba(255, 255, 255, .22), rgba(255, 255, 255, .06) 50%, rgba(0, 0, 0, .1) 50%, rgba(0, 0, 0, .18)),
+      var(--glass-dark);
+    border-top: 1px solid rgba(255, 255, 255, .35);
+    box-shadow: 0 -1px 0 rgba(0, 0, 0, .5);
+    backdrop-filter: blur(10px) saturate(1.3);
+    -webkit-backdrop-filter: blur(10px) saturate(1.3);
+  }
 
-            .title-bar {
-                cursor: default;
-            }
-            .content {
-                max-height: calc(80vh - 50px);
-            }
+  #start-button {
+    position: relative;
+    width: 54px;
+    display: grid;
+    place-items: center;
+  }
+  .orb {
+    display: grid;
+    place-items: center;
+    width: 38px;
+    height: 38px;
+    margin-top: -2px;
+    border-radius: 50%;
+    border: 1px solid rgba(0, 20, 50, .8);
+    background:
+      radial-gradient(circle at 50% 108%, rgba(120, 230, 255, .9), transparent 55%),
+      linear-gradient(rgba(255, 255, 255, .55), rgba(255, 255, 255, .12) 48%, transparent 50%),
+      radial-gradient(circle at 50% 40%, #2f74c2, #0b2f5e 75%);
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .35), 0 0 6px rgba(0, 0, 0, .5);
+    color: #fff;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: .5px;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, .7);
+    transition: box-shadow .15s, filter .15s;
+  }
+  #start-button:hover .orb { filter: brightness(1.2); box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .5), 0 0 12px rgba(120, 210, 255, .9); }
+  #start-button[aria-expanded="true"] .orb { filter: brightness(.9); box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .4), 0 0 14px rgba(120, 210, 255, 1); }
 
-            #start-menu {
-                left: 5vw;
-                width: 90vw;
-            }
-            .start-menu-header {
-                writing-mode: horizontal-tb;
-                transform: rotate(0deg);
-                height: auto;
-                width: 100%;
-                position: relative;
-                text-align: center;
-                border-right: none;
-                border-bottom: 1px solid ThreeDDarkShadow;
-                padding: 0.5rem;
-                margin-left: 0;
-            }
-            .start-menu-items {
-                margin-left: 0;
-                width: 100%;
-            }
-        }
-    </style>
+  #tasks {
+    flex: 1;
+    display: flex;
+    gap: 2px;
+    padding: 3px 4px;
+    min-width: 0;
+    overflow: hidden;
+  }
+  #taskbar button.task {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex: 0 1 168px;
+    min-width: 40px;
+    padding: 0 8px;
+    border: 1px solid rgba(0, 0, 0, .45);
+    border-radius: 3px;
+    color: #fff;
+    text-shadow: 0 1px 2px #000;
+    background: linear-gradient(rgba(255, 255, 255, .22), rgba(255, 255, 255, .08) 50%, rgba(255, 255, 255, .02) 50%, rgba(255, 255, 255, .12));
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .25);
+  }
+  .task span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .task svg { width: 22px; height: 22px; }
+  #taskbar button.task:hover { background: linear-gradient(rgba(255, 255, 255, .35), rgba(255, 255, 255, .15) 50%, rgba(255, 255, 255, .08) 50%, rgba(140, 210, 255, .3)); }
+  #taskbar button.task[aria-pressed="true"] {
+    background: linear-gradient(rgba(255, 255, 255, .12), rgba(0, 0, 0, .12) 50%, rgba(0, 0, 0, .2) 50%, rgba(120, 190, 255, .25));
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, .6), inset 0 0 0 1px rgba(255, 255, 255, .15);
+  }
+  .task.is-min { opacity: .75; }
+
+  #tray {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    padding-left: 6px;
+    border-left: 1px solid rgba(0, 0, 0, .35);
+    box-shadow: inset 1px 0 rgba(255, 255, 255, .15);
+    color: #fff;
+  }
+  .tray-btn {
+    display: grid;
+    place-items: center;
+    height: 100%;
+    padding: 0 6px;
+    border-radius: 2px;
+  }
+  .tray-btn:hover { background: rgba(255, 255, 255, .15); }
+  .tray-btn svg { width: 18px; height: 18px; }
+  #clock { text-align: center; line-height: 1.3; padding: 0 8px; text-shadow: 0 1px 2px #000; }
+  #taskbar #show-desktop {
+    width: 14px;
+    margin-left: 4px;
+    border-left: 1px solid rgba(255, 255, 255, .25);
+    background: linear-gradient(90deg, rgba(255, 255, 255, .08), rgba(255, 255, 255, .2));
+  }
+  #taskbar #show-desktop:hover { background: linear-gradient(90deg, rgba(255, 255, 255, .2), rgba(255, 255, 255, .45)); }
+
+  /* ---------- Start menu ---------- */
+  #start-menu {
+    position: fixed;
+    left: 0;
+    bottom: var(--taskbar-h);
+    z-index: 100001;
+    display: grid;
+    grid-template-columns: 250px 170px;
+    padding: 8px;
+    gap: 6px;
+    border: 1px solid rgba(0, 0, 0, .7);
+    border-radius: 6px 6px 0 0;
+    background:
+      linear-gradient(rgba(255, 255, 255, .18), rgba(255, 255, 255, .04) 40%),
+      var(--glass-dark);
+    box-shadow: inset 0 0 0 1px var(--glass-edge), 2px -2px 12px rgba(0, 0, 0, .5);
+    backdrop-filter: blur(12px) saturate(1.3);
+    -webkit-backdrop-filter: blur(12px) saturate(1.3);
+    transform-origin: bottom left;
+  }
+  #start-menu[hidden] { display: none; }
+  .sm-left {
+    display: flex;
+    flex-direction: column;
+    background: #fff;
+    border: 1px solid rgba(0, 0, 0, .55);
+    border-radius: 4px;
+    box-shadow: 0 0 0 1px rgba(255, 255, 255, .45);
+    padding: 6px 4px;
+    min-height: 360px;
+  }
+  .sm-list { list-style: none; margin: 0; padding: 0; }
+  #start-menu .sm-item.sm-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+    padding: 3px 8px;
+    border: 1px solid transparent;
+    border-radius: 3px;
+    color: #000;
+    text-decoration: none;
+  }
+  .sm-item svg { width: 32px; height: 32px; }
+  .sm-item small { display: block; color: #666; }
+  #start-menu .sm-item:hover, #start-menu .sm-item:focus-visible, #start-menu .sm-item.kb {
+    outline: none;
+    border-color: #7da2ce;
+    background: linear-gradient(#f2f8fe, #dcebfc);
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .7);
+  }
+  .sm-sep { height: 1px; margin: 6px 8px; background: linear-gradient(90deg, transparent, #c5d4e4 15%, #c5d4e4 85%, transparent); }
+  .sm-search { margin-top: auto; padding: 8px 4px 2px; border-top: 1px solid #e3e8ee; }
+  .sm-search .searchbox, .sm-search input { width: 100%; }
+  .sm-empty { padding: 8px; color: #666; }
+
+  .sm-right { display: flex; flex-direction: column; color: #fff; padding: 2px 0; }
+  .sm-user { display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 4px 0 10px; }
+  .sm-user .avatar { width: 56px; height: 56px; border-color: rgba(0, 0, 0, .6); box-shadow: 0 0 0 3px rgba(255, 255, 255, .55), 0 2px 6px rgba(0, 0, 0, .5); }
+  .sm-user b { font-weight: normal; text-shadow: 0 1px 2px #000; }
+  .sm-link {
+    display: block;
+    width: 100%;
+    padding: 5px 10px;
+    border: 1px solid transparent;
+    border-radius: 3px;
+    color: #fff;
+    text-decoration: none;
+    text-shadow: 0 1px 2px #000;
+  }
+  .sm-link:hover, .sm-link:focus-visible, .sm-link.kb {
+    outline: none;
+    border-color: rgba(255, 255, 255, .45);
+    background: linear-gradient(rgba(255, 255, 255, .28), rgba(255, 255, 255, .08) 50%, rgba(255, 255, 255, .02) 50%, rgba(255, 255, 255, .15));
+  }
+  .sm-right .sm-sep { background: linear-gradient(90deg, transparent, rgba(255, 255, 255, .3) 15%, rgba(255, 255, 255, .3) 85%, transparent); }
+  .sm-bottom { margin-top: auto; padding: 8px 6px 0; display: flex; justify-content: flex-end; }
+
+  /* ---------- Small screens ---------- */
+  @media (max-width: 767px) {
+    .app-window {
+      left: 0 !important;
+      top: 0 !important;
+      width: 100% !important;
+      height: 100% !important;
+    }
+    .app-window, .app-window::before, .app-window > .title-bar { border-radius: 0 !important; }
+    .app-window .rz, .app-window [data-act="max"] { display: none; }
+    #taskbar button.task { flex: 0 0 44px; justify-content: center; padding: 0; }
+    .task span { display: none; }
+    #clock .date { display: none; }
+    .tray-btn.optional { display: none; }
+    #start-menu { grid-template-columns: 1fr; left: 0; right: 0; max-height: calc(100% - var(--taskbar-h)); overflow: auto; border-radius: 0; }
+    .sm-left { min-height: 0; }
+    .explorer { grid-template-columns: 1fr; grid-template-rows: auto 1fr; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    #snap-preview { transition: none; }
+  }
+</style>
 </head>
 <body>
 
-    <div class="desktop-icon-bar">
-        <button class="icon-btn" data-window-id="about">🧠 About</button>
-        <button class="icon-btn" data-window-id="work">🎥 Work</button>
-        <button class="icon-btn" data-window-id="resume">📄 Resume</button>
-        <button class="icon-btn" data-window-id="contact">📬 Contact</button>
+<!-- Icon library: a 0x0 SVG (not display:none, so gradients still resolve) -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <linearGradient id="g-paper" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffffff"/><stop offset="1" stop-color="#e3e9f0"/></linearGradient>
+    <linearGradient id="g-card" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffffff"/><stop offset="1" stop-color="#d6e5f5"/></linearGradient>
+    <linearGradient id="g-dark" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#525b69"/><stop offset="1" stop-color="#1c2128"/></linearGradient>
+    <linearGradient id="g-blue" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#7cbcf0"/><stop offset="1" stop-color="#2463ae"/></linearGradient>
+  </defs>
+
+  <symbol id="i-about" viewBox="0 0 48 48">
+    <rect x="4" y="9" width="40" height="30" rx="3" fill="url(#g-card)" stroke="#3d6c9f"/>
+    <path d="M7 9.5h34a2.5 2.5 0 0 1 2.5 2.5v4.5h-39V12A2.5 2.5 0 0 1 7 9.5z" fill="url(#g-blue)"/>
+    <circle cx="15.5" cy="24.5" r="4.5" fill="#3d6c9f"/>
+    <path d="M8 35.5c0-4.6 3.4-7 7.5-7s7.5 2.4 7.5 7z" fill="#3d6c9f"/>
+    <rect x="27" y="21" width="12" height="2.5" rx="1" fill="#5d6d7e"/>
+    <rect x="27" y="26.5" width="10" height="2" rx="1" fill="#a7b5c4"/>
+    <rect x="27" y="31" width="8" height="2" rx="1" fill="#a7b5c4"/>
+  </symbol>
+
+  <symbol id="i-work" viewBox="0 0 48 48">
+    <rect x="5" y="18" width="38" height="25" rx="2" fill="url(#g-dark)" stroke="#111"/>
+    <g transform="rotate(-11 5 18)">
+      <rect x="5" y="11" width="38" height="7" rx="1" fill="#2a2f37" stroke="#111"/>
+      <path d="M9 11h5l-3 7H6zM19 11h5l-3 7h-5zM29 11h5l-3 7h-5zM39 11h4l-3 7h-4z" fill="#f2f2f2"/>
+    </g>
+    <path d="M20 24.5v12l10-6z" fill="#fff" opacity=".9"/>
+  </symbol>
+
+  <symbol id="i-clips" viewBox="0 0 48 48">
+    <path d="M9 6h30a2 2 0 0 1 2 2v31a3 3 0 0 1-3 3H9a3 3 0 0 1-3-3V9a3 3 0 0 1 3-3z" fill="url(#g-paper)" stroke="#7f8c99"/>
+    <rect x="10.5" y="10.5" width="27" height="5.5" fill="#22272e"/>
+    <rect x="10.5" y="19.5" width="12" height="11" fill="url(#g-blue)"/>
+    <rect x="25.5" y="19.5" width="12" height="2" fill="#8a97a5"/>
+    <rect x="25.5" y="24" width="12" height="2" fill="#8a97a5"/>
+    <rect x="25.5" y="28.5" width="9" height="2" fill="#8a97a5"/>
+    <rect x="10.5" y="33.5" width="27" height="2" fill="#8a97a5"/>
+    <rect x="10.5" y="37.5" width="19" height="2" fill="#8a97a5"/>
+  </symbol>
+
+  <symbol id="i-resume" viewBox="0 0 48 48">
+    <path d="M11 4h18l10 10v29a1 1 0 0 1-1 1H11a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1z" fill="url(#g-paper)" stroke="#7f8c99"/>
+    <path d="M29 4v9a1 1 0 0 0 1 1h9z" fill="#dce4ed" stroke="#7f8c99" stroke-linejoin="round"/>
+    <rect x="15" y="18" width="14" height="3" fill="#2f6aac"/>
+    <rect x="15" y="24.5" width="20" height="2" fill="#a7b5c4"/>
+    <rect x="15" y="29" width="20" height="2" fill="#a7b5c4"/>
+    <rect x="15" y="33.5" width="20" height="2" fill="#a7b5c4"/>
+    <rect x="15" y="38" width="13" height="2" fill="#a7b5c4"/>
+  </symbol>
+
+  <symbol id="i-contact" viewBox="0 0 48 48">
+    <rect x="4" y="11" width="40" height="27" rx="2" fill="url(#g-paper)" stroke="#7f8c99"/>
+    <path d="M5.5 37 19 25.5M42.5 37 29 25.5" stroke="#b9c4d0" stroke-width="1.3" fill="none"/>
+    <path d="M5 12.5 24 27l19-14.5" fill="none" stroke="#7f8c99" stroke-width="1.6" stroke-linejoin="round"/>
+    <circle cx="37" cy="34" r="7.5" fill="url(#g-blue)" stroke="#fff" stroke-width="1.5"/>
+    <path d="M33.5 34h7M37 30.5 40.5 34 37 37.5" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+  </symbol>
+
+  <symbol id="i-game" viewBox="0 0 48 48">
+    <rect x="4" y="4" width="40" height="40" rx="5" fill="#a89a8d" stroke="#7d7166"/>
+    <rect x="8" y="8" width="15" height="15" rx="2" fill="#eee4da"/>
+    <rect x="25" y="8" width="15" height="15" rx="2" fill="#f2b179"/>
+    <rect x="8" y="25" width="15" height="15" rx="2" fill="#f59563"/>
+    <rect x="25" y="25" width="15" height="15" rx="2" fill="#edcf72"/>
+  </symbol>
+
+  <symbol id="i-globe" viewBox="0 0 24 24">
+    <circle cx="12" cy="12" r="9.5" fill="url(#g-blue)" stroke="#fff" stroke-width="1.2"/>
+    <path d="M2.5 12h19M12 2.5c3 3 3 16 0 19M12 2.5c-3 3-3 16 0 19" fill="none" stroke="#fff" stroke-width="1.1" opacity=".85"/>
+  </symbol>
+
+  <symbol id="i-help" viewBox="0 0 48 48">
+    <circle cx="24" cy="24" r="19" fill="url(#g-blue)" stroke="#1d4f8c"/>
+    <circle cx="24" cy="24" r="17.5" fill="none" stroke="#fff" stroke-opacity=".5"/>
+    <path d="M18.5 19a5.5 5.5 0 1 1 8.2 4.8c-1.7 1-2.7 2-2.7 4v1" fill="none" stroke="#fff" stroke-width="3.6" stroke-linecap="round"/>
+    <circle cx="24" cy="35" r="2.4" fill="#fff"/>
+  </symbol>
+
+  <symbol id="i-folder" viewBox="0 0 16 16">
+    <path d="M1.5 3.5h4.5l1.5 1.5h7v8.5h-13z" fill="#f4d27a" stroke="#c49a2c"/>
+    <path d="M1.5 6.5h13" stroke="#e2b54b"/>
+  </symbol>
+</svg>
+
+<div id="wallpaper" aria-hidden="true"></div>
+
+<main id="desktop">
+  <ul id="icons" aria-label="Desktop">
+    <li><button class="plain desk-icon" data-open="about"><svg class="ico"><use href="#i-about"/></svg>About Me</button></li>
+    <li><a class="plain desk-icon" href="https://portfolio.edvardi.com" target="_blank" rel="noopener" title="portfolio.edvardi.com"><svg class="ico"><use href="#i-clips"/></svg>My Clips</a></li>
+    <li><button class="plain desk-icon" data-open="work"><svg class="ico"><use href="#i-work"/></svg>My Work</button></li>
+    <li><button class="plain desk-icon" data-open="resume"><svg class="ico"><use href="#i-resume"/></svg>Resume</button></li>
+    <li><button class="plain desk-icon" data-open="contact"><svg class="ico"><use href="#i-contact"/></svg>Contact</button></li>
+    <li><button class="plain desk-icon" data-open="game-2048"><svg class="ico"><use href="#i-game"/></svg>2048</button></li>
+  </ul>
+
+  <!-- About -->
+  <section class="window glass app-window" id="about" data-icon="i-about" data-w="460" data-h="350" aria-labelledby="about-title">
+    <div class="title-bar">
+      <div class="title-bar-text" id="about-title"><svg class="ico"><use href="#i-about"/></svg>About Me</div>
+      <div class="title-bar-controls">
+        <button aria-label="Minimize" data-act="min"></button>
+        <button aria-label="Maximize" data-act="max"></button>
+        <button aria-label="Close" data-act="close"></button>
+      </div>
     </div>
-
-    <div id="start-menu" class="window"> 
-        <div class="start-menu-header">
-            Edvardi Jackson
+    <div class="window-body has-space has-scrollbar">
+      <div class="stack pad">
+        <div class="profile">
+          <img class="avatar" src="img/edvardi.jpg" alt="Edvardi Jackson at a studio microphone" width="64" height="64">
+          <div>
+            <h2>Edvardi Jackson</h2>
+            <div class="muted">Journalist, videographer, founder and CEO of KirMedia and KirNews (formerly The World Telegram News)</div>
+          </div>
         </div>
-        <ul class="start-menu-items">
-            <li><a href="https://www.theworldtelegram.com" target="_blank" class="start-menu-item">📰 The World Telegram News</a></li>
-            <li><a href="https://www.thekircompany.com" target="_blank" class="start-menu-item">🏢 The Kir Company</a></li>
-            <li class="start-menu-item separator"></li>
-            <li><a href="#" class="start-menu-item" onclick="toggleWindow('game-2048'); hideStartMenu(); return false;">🎮 2048 Game</a></li>
-        </ul>
+        <p><strong>Edvardi Jackson</strong> is a versatile journalist, a driven entrepreneur, and a skilled videographer with a passion for objective storytelling. He is the Founder and CEO of KirMedia and KirNews (formerly The World Telegram News), dedicated to delivering transparent and impartial news.</p>
+        <fieldset>
+          <legend>Take a look</legend>
+          <div class="btn-row">
+            <button class="default" data-href="https://portfolio.edvardi.com"><svg class="ico"><use href="#i-clips"/></svg>My clips</button>
+            <button data-open="work"><svg class="ico"><use href="#i-work"/></svg>Video work</button>
+            <button data-open="resume"><svg class="ico"><use href="#i-resume"/></svg>Resume</button>
+            <button data-open="contact"><svg class="ico"><use href="#i-contact"/></svg>Contact</button>
+          </div>
+        </fieldset>
+      </div>
     </div>
-
-    <div class="taskbar">
-        <button class="start-btn" id="start-button">Start</button>
-        <div id="task-icons"></div>
+    <div class="status-bar">
+      <p class="status-bar-field">Ready</p>
+      <p class="status-bar-field"><a href="https://portfolio.edvardi.com" target="_blank" rel="noopener">portfolio.edvardi.com</a></p>
     </div>
+  </section>
 
-    <div class="window" id="about">
-        <div class="title-bar" onmousedown="startDrag(event, this)">
-            <div class="title-bar-text">About Me</div> 
-            <div class="title-bar-controls"> 
-                <button aria-label="Minimize" onclick="toggleWindow('about');"></button> 
-                <button aria-label="Maximize" onclick="/* Add maximize functionality here */"></button> 
-                <button aria-label="Close" onclick="closeWindow('about')"></button>
-            </div>
-        </div>
-        <div class="window-body content"> 
-            <p><strong>Edvardi Jackson</strong> is a versatile journalist, a driven entrepreneur, and a skilled videographer with a passion for objective storytelling. He is the Founder and CEO of KirMedia and The World Telegram News, dedicated to delivering transparent and impartial news.</p>
-        </div>
+  <!-- Work -->
+  <section class="window glass app-window" id="work" data-icon="i-work" data-w="640" data-h="520" aria-labelledby="work-title">
+    <div class="title-bar">
+      <div class="title-bar-text" id="work-title"><svg class="ico"><use href="#i-work"/></svg>My Work</div>
+      <div class="title-bar-controls">
+        <button aria-label="Minimize" data-act="min"></button>
+        <button aria-label="Maximize" data-act="max"></button>
+        <button aria-label="Close" data-act="close"></button>
+      </div>
     </div>
-
-    <div class="window" id="work">
-        <div class="title-bar" onmousedown="startDrag(event, this)">
-            <div class="title-bar-text">My Work</div>
-            <div class="title-bar-controls">
-                <button aria-label="Minimize" onclick="toggleWindow('work');"></button>
-                <button aria-label="Maximize" onclick="/* Add maximize functionality here */"></button>
-                <button aria-label="Close" onclick="closeWindow('work')"></button>
+    <div class="window-body">
+      <div class="tabs">
+        <menu role="tablist" aria-label="My Work">
+          <button role="tab" aria-selected="true" aria-controls="work-reel" id="work-reel-tab">Reel</button>
+          <button role="tab" aria-selected="false" aria-controls="work-clips" id="work-clips-tab">Clips</button>
+          <button role="tab" aria-selected="false" aria-controls="work-what" id="work-what-tab">What I do</button>
+        </menu>
+        <article role="tabpanel" id="work-reel" aria-labelledby="work-reel-tab" class="has-scrollbar">
+          <div class="video">
+            <iframe src="https://www.youtube.com/embed/N54kf_I5Pak" title="Edvardi Jackson video work" loading="lazy" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+          </div>
+        </article>
+        <article role="tabpanel" id="work-clips" aria-labelledby="work-clips-tab" class="has-scrollbar" hidden>
+          <div class="clip-card">
+            <svg class="ico"><use href="#i-clips"/></svg>
+            <div>
+              <h3>My clips</h3>
+              <p>My published journalism is collected at <a href="https://portfolio.edvardi.com" target="_blank" rel="noopener">portfolio.edvardi.com</a>, with stories from The Buffalo Hive, KirNews (formerly The World Telegram News), Entertainment Now and New Rochelle Neighbor Magazine.</p>
+              <button class="default" data-href="https://portfolio.edvardi.com">Open portfolio.edvardi.com</button>
             </div>
-        </div>
-        <div class="window-body content">
-            <p>I specialize in comprehensive story development, electronic news gathering (ENG), compelling interviewing, precise news writing, and engaging voiceover/on-camera presentations. My work spans the entire production process from concept to final delivery.</p>
-            <div class="sub-box">
-				<iframe width="560" height="315" src="https://www.youtube.com/embed/N54kf_I5Pak?si=__05JHGbY0rJAP_d" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>            </div>
-        </div>
-    </div>
-
-    <div class="window" id="resume">
-        <div class="title-bar" onmousedown="startDrag(event, this)">
-            <div class="title-bar-text">Resume</div>
-            <div class="title-bar-controls">
-                <button aria-label="Minimize" onclick="toggleWindow('resume');"></button>
-                <button aria-label="Maximize" onclick="/* Add maximize functionality here */"></button>
-                <button aria-label="Close" onclick="closeWindow('resume')"></button>
-            </div>
-        </div>
-        <div class="window-body content">
-            <h4 class="resume-section-title">Experience</h4>
-            <button class="resume-button" data-details-id="r1">📌 The World Telegram News</button>
-            <div class="resume-details" id="r1">
-                <p><strong>Founder, Multimedia Journalist</strong> (JUN 2021 - PRESENT)</p>
-                <ul>
-                    <li>Founded independent news service at 15.</li>
-                    <li>Engineered custom software/hardware solutions for automated news production processes.</li>
-                    <li>Grew audience by 81% in 2025. In total, we've reached nearly 1,000,000 viewers.</li>
-                    <li>Coordinated and reported on-scene for critical events including protests and elections.</li>
-                </ul>
-            </div>
-            <button class="resume-button" data-details-id="r2">💻 Google CodeNext, New York, NY</button>
-            <div class="resume-details" id="r2">
-                <p><strong>Summer Intern</strong> (NOV 2020 - JUN 2021)</p>
-                <ul>
-                    <li>Selected for Google-sponsored tech immersion program (early career).</li>
-                    <li>Developed foundational programming and web skills through real-world projects.</li>
-                </ul>
-            </div>
-            <button class="resume-button" data-details-id="r3">📰 The Buffalo Hive, Buffalo, NY</button>
-            <div class="resume-details" id="r3">
-                <p><strong>Freelance Journalist</strong> (APR 2025 - PRESENT)</p>
-                <ul>
-                    <li>Worked for an arts and culture news publication, specializing in covering historically marginalized communities.</li>
-                    <li>Conducted in-depth interviews and produces multimedia content for diverse platforms.</li>
-                    <li>Applied meticulous research to cover complex social topics.</li>
-                </ul>
-            </div>
-            <button class="resume-button" data-details-id="r4">🎙️ WBNY 91.3FM, Buffalo, NY</button>
-            <div class="resume-details" id="r4">
-                <p><strong>News Director</strong> (MAY 2025 - PRESENT)<br>
-                   <strong>News Anchor</strong> (OCT 2024 - MAY 2025)</p>
-                <ul>
-                    <li>Promoted to News Director; previously served as News Anchor.</li>
-                    <li>Directed and anchored live broadcasts, managing content creation and on-air operations.</li>
-                    <li>Mastered 12-channel audio mixer, and managed broadcast equipment (TASCAM, ZOOM).</li>
-                </ul>
-            </div>
-          	<button class="resume-button" data-details-id="r5">💻 CUTCO/Vector Marketing, Buffalo, NY</button>
-            <div class="resume-details" id="r5">
-                <p><strong>Independent CUTCO Sales Representative</strong> (SUMMER 2025)</p>
-                <ul>
-                    <li>Kicked off my sales experience by generating $300+ in first-week product sales through direct outreach and client presentations.</li>
-                    <li>Managed personal pipeline of prospects using company's proprietary CRM tools.</li>
-                </ul>
-            </div>
-
-            <h4 class="resume-section-title">Skills</h4>
-            <ul class="skills-list">
-                <li><b>Video Production:</b> <br><b>Directing</b>, <br><b>writing</b>, <br><b>video editing</b> (Adobe Premiere, Davinci Resolve), <br><b>camera operation</b> (HD/4K), <br><b>lighting</b>, <br><b>technical direction</b> (Blackmagic ATEM 4K)</li>
-                <li><b>Audio Production:</b> <br><b>Audio Processing and Editing</b> (Audacity, Adobe Audition, Garageband, Logic Pro)</li>
-                <li><b>Computer Applications:</b> <br><b>Google Workspace</b>, <br><b>Microsoft Office</b>, <br><b>Scrivener</b>, <br><b>MotionMixes</b>, <br><b>Canva</b>, <br><b>Adobe After Effects</b>, <br><b>Affinity Designer</b></li>
-                <li><b>News:</b> <br><b>Electronic Newsgathering</b>, <br><b>News Writing</b>, <br><b>AP ENPS</b>, <br><b>Reuters Connect</b>, <br><b>Rundown Creator</b>, <br><b>Media Relations</b>, <br><b>Community Outreach</b></li>
-                <li><b>Other:</b> <br><b>Audience Retention</b>, <br><b>Mentoring</b>, <br><b>Conflict Resolution</b>, <br><b>Brand Communication</b>, <br><b>Relationship Building</b>, <br><b>Collaboration</b>, <br><b>Project Oversight</b>, <br><b>Content Planning</b>, <br><b>Crisis Management/PR</b>, <br><b>Problem-Solving</b></li>
+          </div>
+        </article>
+        <article role="tabpanel" id="work-what" aria-labelledby="work-what-tab" class="has-scrollbar" hidden>
+          <p>I specialize in comprehensive story development, electronic news gathering (ENG), compelling interviewing, precise news writing, and engaging voiceover/on-camera presentations. My work spans the entire production process from concept to final delivery.</p>
+          <fieldset>
+            <legend>Services</legend>
+            <ul style="margin:0;padding-left:16px;line-height:1.6">
+              <li>Story development</li>
+              <li>Electronic news gathering (ENG)</li>
+              <li>Interviewing</li>
+              <li>News writing</li>
+              <li>Voiceover and on-camera presentation</li>
             </ul>
-        </div>
+          </fieldset>
+        </article>
+      </div>
     </div>
+    <div class="status-bar">
+      <p class="status-bar-field">Video, writing and production</p>
+      <p class="status-bar-field"><a href="https://portfolio.edvardi.com" target="_blank" rel="noopener">My clips</a></p>
+    </div>
+  </section>
 
-    <div class="window" id="contact">
-        <div class="title-bar" onmousedown="startDrag(event, this)">
-            <div class="title-bar-text">Contact</div>
-            <div class="title-bar-controls">
-                <button aria-label="Minimize" onclick="toggleWindow('contact');"></button>
-                <button aria-label="Maximize" onclick="/* Add maximize functionality here */"></button>
-                <button aria-label="Close" onclick="closeWindow('contact')"></button>
+  <!-- Resume -->
+  <section class="window glass app-window" id="resume" data-icon="i-resume" data-w="680" data-h="520" aria-labelledby="resume-title">
+    <div class="title-bar">
+      <div class="title-bar-text" id="resume-title"><svg class="ico"><use href="#i-resume"/></svg>Resume</div>
+      <div class="title-bar-controls">
+        <button aria-label="Minimize" data-act="min"></button>
+        <button aria-label="Maximize" data-act="max"></button>
+        <button aria-label="Close" data-act="close"></button>
+      </div>
+    </div>
+    <div class="window-body">
+      <div class="tabs">
+        <menu role="tablist" aria-label="Resume">
+          <button role="tab" aria-selected="true" aria-controls="resume-exp" id="resume-exp-tab">Experience</button>
+          <button role="tab" aria-selected="false" aria-controls="resume-skills" id="resume-skills-tab">Skills</button>
+        </menu>
+        <article role="tabpanel" id="resume-exp" aria-labelledby="resume-exp-tab">
+          <div class="explorer">
+            <ul class="tree-view has-container has-collapse-button has-connector has-scrollbar">
+              <li>
+                <details open>
+                  <summary>Media and journalism</summary>
+                  <ul>
+                    <li><a href="#job-ent" data-job="job-ent" aria-current="true"><svg class="ico"><use href="#i-folder"/></svg>Entertainment Now</a></li>
+                    <li><a href="#job-hive" data-job="job-hive"><svg class="ico"><use href="#i-folder"/></svg>The Buffalo Hive</a></li>
+                    <li><a href="#job-wbny" data-job="job-wbny"><svg class="ico"><use href="#i-folder"/></svg>WBNY 91.3FM</a></li>
+                    <li><a href="#job-kirco" data-job="job-kirco"><svg class="ico"><use href="#i-folder"/></svg>The KirCompany</a></li>
+                    <li><a href="#job-kirnews" data-job="job-kirnews"><svg class="ico"><use href="#i-folder"/></svg>KirNews (formerly The World Telegram News)</a></li>
+                    <li><a href="#job-codenext" data-job="job-codenext"><svg class="ico"><use href="#i-folder"/></svg>Google CodeNext</a></li>
+                  </ul>
+                </details>
+              </li>
+              <li>
+                <details open>
+                  <summary>Other experience</summary>
+                  <ul>
+                    <li><a href="#job-mcd" data-job="job-mcd"><svg class="ico"><use href="#i-folder"/></svg>McDonald's</a></li>
+                    <li><a href="#job-cutco" data-job="job-cutco"><svg class="ico"><use href="#i-folder"/></svg>CUTCO/Vector Marketing</a></li>
+                    <li><a href="#job-repair" data-job="job-repair"><svg class="ico"><use href="#i-folder"/></svg>Computer repair</a></li>
+                  </ul>
+                </details>
+              </li>
+            </ul>
+            <div class="job has-scrollbar" aria-live="polite">
+              <div class="job-detail" id="job-ent">
+                <h3>Entertainment Now, Remote</h3>
+                <div class="when"><strong>Entertainment Contributor</strong> (MAY 2026 - PRESENT)</div>
+                <ul>
+                  <li>Entertainment reporter, publishing high-volume articles while independently sourcing breaking news and original angles.</li>
+                  <li>Drive pageview growth by testing headlines and formats and prioritizing original reporting over reactive coverage.</li>
+                </ul>
+                <p style="margin-top:8px">Read my stories at <a href="https://portfolio.edvardi.com" target="_blank" rel="noopener">portfolio.edvardi.com</a>.</p>
+              </div>
+              <div class="job-detail" id="job-hive" hidden>
+                <h3>The Buffalo Hive, Buffalo, NY</h3>
+                <div class="when"><strong>Journalist</strong> (APR 2025 - PRESENT)</div>
+                <ul>
+                  <li>Report on arts and culture in Buffalo, centering historically marginalized communities.</li>
+                  <li>Interview politicians, community members, and event organizers for original stories.</li>
+                  <li>Capture SOTs, photos, and video and package them for social media distribution.</li>
+                </ul>
+                <p style="margin-top:8px">Read my stories at <a href="https://portfolio.edvardi.com" target="_blank" rel="noopener">portfolio.edvardi.com</a>.</p>
+              </div>
+              <div class="job-detail" id="job-wbny" hidden>
+                <h3>WBNY 91.3FM, Buffalo, NY</h3>
+                <div class="when"><strong>News Director</strong> (MAY 2025 - PRESENT)<br><strong>News Anchor</strong> (OCT 2024 - MAY 2025)</div>
+                <ul>
+                  <li>Promoted to News Director; previously served as News Anchor.</li>
+                  <li>Directed and anchored live broadcasts, managing content creation and on-air operations.</li>
+                  <li>Mastered 12-channel audio mixer, and managed broadcast equipment (TASCAM, ZOOM).</li>
+                </ul>
+              </div>
+              <div class="job-detail" id="job-kirco" hidden>
+                <h3>The KirCompany, New York, NY</h3>
+                <div class="when"><strong>Founder</strong>, Independent Media Production Studio (JUL 2021 - PRESENT)</div>
+                <ul>
+                  <li>Founded and run an independent media and content strategy studio, owning finances, recruitment, marketing, and production end to end.</li>
+                  <li>Produced 2 short films and 4 advertising campaigns and maintain ongoing sponsor partnerships.</li>
+                  <li>Grew audience to over 1,000,000 cumulative viewers by 2026 across news, radio, and multimedia.</li>
+                  <li>Produce weekly radio broadcasts and on-scene reporting, handling scripting, interviews, and audio production.</li>
+                  <li>Deliver freelance video editing, post-production, motion graphics, podcast production, and content strategy for clients.</li>
+                </ul>
+                <p style="margin-top:8px"><a href="https://www.kirmedia.net" target="_blank" rel="noopener">kirmedia.net</a></p>
+              </div>
+              <div class="job-detail" id="job-kirnews" hidden>
+                <h3>KirNews (formerly The World Telegram News)</h3>
+                <div class="when"><strong>Founder, Multimedia Journalist</strong> (JUN 2021 - PRESENT)</div>
+                <ul>
+                  <li>Founded independent news service at 15.</li>
+                  <li>Engineered custom software/hardware solutions for automated news production processes.</li>
+                  <li>Grew audience by 81% in 2025. In total, we've reached nearly 1,000,000 viewers.</li>
+                  <li>Coordinated and reported on-scene for critical events including protests and elections.</li>
+                </ul>
+                <p style="margin-top:8px">Read my stories at <a href="https://portfolio.edvardi.com" target="_blank" rel="noopener">portfolio.edvardi.com</a>.</p>
+              </div>
+              <div class="job-detail" id="job-codenext" hidden>
+                <h3>Google CodeNext, New York, NY</h3>
+                <div class="when"><strong>Summer Intern</strong> (NOV 2020 - JUN 2021)</div>
+                <ul>
+                  <li>Selected for Google-sponsored tech immersion program (early career).</li>
+                  <li>Developed foundational programming and web skills through real-world projects.</li>
+                </ul>
+              </div>
+              <div class="job-detail" id="job-mcd" hidden>
+                <h3>McDonald's, Amherst, NY</h3>
+                <div class="when"><strong>Shift Manager</strong> (JUL 2025 - PRESENT)</div>
+                <ul>
+                  <li>Lead shifts in a high-volume restaurant, coordinating kitchen and front-counter staff to keep service fast and accurate through peak rushes.</li>
+                  <li>Train new crew members as a manager trainee and enforce food safety and cleanliness standards.</li>
+                  <li>Process cash and card transactions accurately on POS systems.</li>
+                </ul>
+              </div>
+              <div class="job-detail" id="job-cutco" hidden>
+                <h3>CUTCO/Vector Marketing, Buffalo, NY</h3>
+                <div class="when"><strong>Independent CUTCO Sales Representative</strong> (SUMMER 2025)</div>
+                <ul>
+                  <li>Kicked off my sales experience by generating $300+ in first-week product sales through direct outreach and client presentations.</li>
+                  <li>Managed personal pipeline of prospects using company's proprietary CRM tools.</li>
+                </ul>
+              </div>
+              <div class="job-detail" id="job-repair" hidden>
+                <h3>Sole Proprietorship, New Rochelle, NY</h3>
+                <div class="when"><strong>Independent Computer Repair Technician</strong> (JUL 2022 - JUL 2024)</div>
+                <ul>
+                  <li>Ran a direct-to-consumer repair business covering Windows and Mac repair, micro soldering, and on-call support, building a repeat client base.</li>
+                  <li>Managed parts inventory, customer tickets, and scheduling as a solo operator.</li>
+                  <li>Delivered basic website and software development for clients.</li>
+                </ul>
+              </div>
             </div>
-        </div>
-        <div class="window-body content">
-            <p>Interested in connecting or collaborating? I’d love to hear from you!</p>
-            <p>Email: <a href="mailto:edvardi.mk2@gmail.com">edvardi.mk2@gmail.com</a></p>
-            <p>Reporter Reel: <a href="your-reel-link-here" target="_blank">View Here</a></p>
-            <p>Follow me on:
-                <a href="https://x.com/EdvardiJ" target="_blank">X (Twitter)</a> |
-                <a href="https://www.linkedin.com/in/edvardij/" target="_blank">LinkedIn</a> |
-                <a href="https://www.instagram.com/edvardij/" target="_blank">Instagram</a>
-            </p>
-        </div>
+          </div>
+        </article>
+        <article role="tabpanel" id="resume-skills" aria-labelledby="resume-skills-tab" class="has-scrollbar" hidden>
+          <div class="skills">
+            <fieldset>
+              <legend>Video Production</legend>
+              <ul>
+                <li>Directing</li>
+                <li>Writing</li>
+                <li>Video editing (Adobe Premiere, DaVinci Resolve)</li>
+                <li>Camera operation (HD/4K)</li>
+                <li>Lighting</li>
+                <li>Technical direction (Blackmagic ATEM 4K)</li>
+              </ul>
+            </fieldset>
+            <fieldset>
+              <legend>Audio Production</legend>
+              <ul>
+                <li>Audio processing and editing (Audacity, Adobe Audition, GarageBand, Logic Pro)</li>
+              </ul>
+            </fieldset>
+            <fieldset>
+              <legend>News</legend>
+              <ul>
+                <li>Electronic newsgathering</li>
+                <li>News writing</li>
+                <li>AP ENPS</li>
+                <li>Reuters Connect</li>
+                <li>Rundown Creator</li>
+                <li>Media relations</li>
+                <li>Community outreach</li>
+              </ul>
+            </fieldset>
+            <fieldset>
+              <legend>Computer Applications</legend>
+              <ul>
+                <li>Google Workspace</li>
+                <li>Microsoft Office</li>
+                <li>Scrivener</li>
+                <li>MotionMixes</li>
+                <li>Canva</li>
+                <li>Adobe After Effects</li>
+                <li>Affinity Designer</li>
+              </ul>
+            </fieldset>
+            <fieldset>
+              <legend>Other</legend>
+              <ul>
+                <li>Audience retention</li>
+                <li>Mentoring</li>
+                <li>Conflict resolution</li>
+                <li>Brand communication</li>
+                <li>Relationship building</li>
+                <li>Collaboration</li>
+                <li>Project oversight</li>
+                <li>Content planning</li>
+                <li>Crisis management/PR</li>
+                <li>Problem-solving</li>
+              </ul>
+            </fieldset>
+            <fieldset>
+              <legend>Certifications</legend>
+              <ul>
+                <li>NOCTI Workforce Competency Credential: Television Production</li>
+              </ul>
+            </fieldset>
+          </div>
+        </article>
+      </div>
     </div>
+    <div class="status-bar">
+      <p class="status-bar-field" id="resume-status">Entertainment Now</p>
+      <p class="status-bar-field" id="resume-count"></p>
+    </div>
+  </section>
 
-    <div class="window" id="game-2048">
-        <div class="title-bar" onmousedown="startDrag(event, this)">
-            <div class="title-bar-text">🎮 2048 Game</div>
-            <div class="title-bar-controls">
-                <button aria-label="Minimize" onclick="toggleWindow('game-2048');"></button>
-                <button aria-label="Maximize" onclick="/* Add maximize functionality here */"></button>
-                <button aria-label="Close" onclick="closeWindow('game-2048')"></button>
+  <!-- Contact -->
+  <section class="window glass app-window" id="contact" data-icon="i-contact" data-w="440" data-h="390" aria-labelledby="contact-title">
+    <div class="title-bar">
+      <div class="title-bar-text" id="contact-title"><svg class="ico"><use href="#i-contact"/></svg>Contact</div>
+      <div class="title-bar-controls">
+        <button aria-label="Minimize" data-act="min"></button>
+        <button aria-label="Maximize" data-act="max"></button>
+        <button aria-label="Close" data-act="close"></button>
+      </div>
+    </div>
+    <div class="window-body has-space has-scrollbar">
+      <div class="pad contact-grid">
+        <p>Interested in connecting or collaborating? I'd love to hear from you!</p>
+        <fieldset>
+          <legend>Email</legend>
+          <div class="contact-line">
+            <a href="mailto:edvardi.mk2@gmail.com">edvardi.mk2@gmail.com</a>
+            <button data-copy="edvardi.mk2@gmail.com">Copy</button>
+          </div>
+        </fieldset>
+        <fieldset>
+          <legend>My clips</legend>
+          <div class="contact-line">
+            <a href="https://portfolio.edvardi.com" target="_blank" rel="noopener">portfolio.edvardi.com</a>
+          </div>
+        </fieldset>
+        <fieldset>
+          <legend>Follow me</legend>
+          <div class="contact-line">
+            <a href="https://x.com/EdvardiJ" target="_blank" rel="noopener">X (Twitter)</a> |
+            <a href="https://www.linkedin.com/in/edvardij/" target="_blank" rel="noopener">LinkedIn</a> |
+            <a href="https://www.instagram.com/edvardij/" target="_blank" rel="noopener">Instagram</a>
+          </div>
+        </fieldset>
+      </div>
+    </div>
+    <div class="status-bar">
+      <p class="status-bar-field" id="contact-status">Ready</p>
+    </div>
+  </section>
+
+  <!-- 2048 -->
+  <section class="window glass app-window" id="game-2048" data-icon="i-game" data-w="440" data-h="560" aria-labelledby="game-title">
+    <div class="title-bar">
+      <div class="title-bar-text" id="game-title"><svg class="ico"><use href="#i-game"/></svg>2048</div>
+      <div class="title-bar-controls">
+        <button aria-label="Minimize" data-act="min"></button>
+        <button aria-label="Maximize" data-act="max"></button>
+        <button aria-label="Close" data-act="close"></button>
+      </div>
+    </div>
+    <div class="window-body frame-body">
+      <iframe data-src="https://2048game.com/" title="2048 game"></iframe>
+    </div>
+  </section>
+
+  <!-- Help -->
+  <section class="window glass app-window" id="help" data-icon="i-help" data-w="500" data-h="580" aria-labelledby="help-title">
+    <div class="title-bar">
+      <div class="title-bar-text" id="help-title"><svg class="ico"><use href="#i-help"/></svg>Getting around</div>
+      <div class="title-bar-controls">
+        <button aria-label="Minimize" data-act="min"></button>
+        <button aria-label="Maximize" data-act="max"></button>
+        <button aria-label="Close" data-act="close"></button>
+      </div>
+    </div>
+    <div class="window-body has-space has-scrollbar">
+      <div class="pad stack">
+        <h2>Welcome to my desktop</h2>
+        <p>This site works like a Windows 7 desktop. Everything about my work lives in windows you can open, move and arrange.</p>
+        <fieldset>
+          <legend>Opening things</legend>
+          <ul class="help-list">
+            <li class="desktop-only"><b>Double-click</b> an icon on the left to open it.</li>
+            <li class="mobile-only"><b>Tap</b> an icon to open it.</li>
+            <li>The <b>EJ button</b> at bottom left opens the Start menu. It lists every window and link, and you can type to search.</li>
+            <li><b>My Clips</b> opens my published stories at <a href="https://portfolio.edvardi.com" target="_blank" rel="noopener">portfolio.edvardi.com</a>.</li>
+            <li>The <b>taskbar</b> shows open windows. Click one to bring it forward, or click the active one to minimize it.</li>
+          </ul>
+        </fieldset>
+        <fieldset class="desktop-only">
+          <legend>Arranging windows</legend>
+          <ul class="help-list">
+            <li><b>Drag the title bar</b> to move a window. Drag an edge or corner to resize it.</li>
+            <li><b>Double-click the title bar</b> or use the middle button to maximize.</li>
+            <li><b>Drag a window to the left or right edge</b> to snap it to half the screen, or to the top edge to maximize it.</li>
+          </ul>
+        </fieldset>
+        <fieldset class="desktop-only">
+          <legend>Try it</legend>
+          <div class="demo">
+            <svg class="ico"><use href="#i-work"/></svg>
+            <div>
+              <p>Watch my reel and read my resume side by side.</p>
+              <button class="default" data-demo="compare">Open reel + resume side by side</button>
             </div>
-        </div>
-        <div class="window-body content">
-            <iframe src="https://2048game.com/" frameborder="0" style="width:100%; height:400px; display:block;"></iframe>
-        </div>
+          </div>
+        </fieldset>
+      </div>
     </div>
+    <div class="window-footer help-footer">
+      <div><input type="checkbox" id="help-startup"><label for="help-startup">Show this every time the site opens</label></div>
+      <button data-act="close">OK</button>
+    </div>
+  </section>
 
-    <script>
-        let offsetX, offsetY, topZ = 10;
-        const taskIconsContainer = document.getElementById("task-icons");
-        const openWindows = new Set(); // To keep track of currently open windows
-        const startButton = document.getElementById('start-button');
-        const startMenu = document.getElementById('start-menu');
+  <div id="snap-preview" aria-hidden="true"></div>
+</main>
 
-        // Event delegation for desktop icons
-        document.querySelectorAll('.desktop-icon-bar .icon-btn').forEach(button => {
-            button.addEventListener('click', () => {
-                const windowId = button.dataset.windowId;
-                toggleWindow(windowId);
-                hideStartMenu(); // Hide start menu if open
-            });
-        });
+<!-- Start menu -->
+<nav id="start-menu" aria-label="Start menu" hidden>
+  <div class="sm-left">
+    <ul class="sm-list" id="sm-programs">
+      <li><button class="plain sm-item" data-open="about"><svg class="ico"><use href="#i-about"/></svg><span>About Me</span></button></li>
+      <li><a class="plain sm-item" href="https://portfolio.edvardi.com" target="_blank" rel="noopener"><svg class="ico"><use href="#i-clips"/></svg><span>My Clips<small>portfolio.edvardi.com</small></span></a></li>
+      <li><button class="plain sm-item" data-open="work"><svg class="ico"><use href="#i-work"/></svg><span>My Work</span></button></li>
+      <li><button class="plain sm-item" data-open="resume"><svg class="ico"><use href="#i-resume"/></svg><span>Resume</span></button></li>
+      <li><button class="plain sm-item" data-open="contact"><svg class="ico"><use href="#i-contact"/></svg><span>Contact</span></button></li>
+      <li class="sm-sep" role="separator"></li>
+      <li><button class="plain sm-item" data-open="game-2048"><svg class="ico"><use href="#i-game"/></svg><span>2048</span></button></li>
+      <li><button class="plain sm-item" data-open="help"><svg class="ico"><use href="#i-help"/></svg><span>Getting around<small>Tips for using this site</small></span></button></li>
+    </ul>
+    <div class="sm-empty" id="sm-empty" hidden>No matches</div>
+    <div class="sm-search">
+      <div class="searchbox">
+        <input type="search" id="sm-search" placeholder="Search" aria-label="Search the Start menu">
+        <button aria-label="search" tabindex="-1"></button>
+      </div>
+    </div>
+  </div>
+  <div class="sm-right">
+    <div class="sm-user">
+      <img class="avatar" src="img/edvardi.jpg" alt="" width="56" height="56">
+      <b>Edvardi Jackson</b>
+    </div>
+    <ul class="sm-list" id="sm-links">
+      <li><a class="plain sm-link" href="https://portfolio.edvardi.com" target="_blank" rel="noopener">My Clips</a></li>
+      <li><a class="plain sm-link" href="https://kirnews.com" target="_blank" rel="noopener">KirNews</a></li>
+      <li><a class="plain sm-link" href="https://www.kirmedia.net" target="_blank" rel="noopener">The KirCompany</a></li>
+      <li class="sm-sep" role="separator"></li>
+      <li><a class="plain sm-link" href="https://www.linkedin.com/in/edvardij/" target="_blank" rel="noopener">LinkedIn</a></li>
+      <li><a class="plain sm-link" href="https://x.com/EdvardiJ" target="_blank" rel="noopener">X (Twitter)</a></li>
+      <li><a class="plain sm-link" href="https://www.instagram.com/edvardij/" target="_blank" rel="noopener">Instagram</a></li>
+      <li><a class="plain sm-link" href="mailto:edvardi.mk2@gmail.com">Email me</a></li>
+    </ul>
+    <div class="sm-bottom">
+      <button id="close-all">Close all windows</button>
+    </div>
+  </div>
+</nav>
 
-        // Event delegation for resume buttons
-        document.querySelectorAll('.resume-button').forEach(button => {
-            button.addEventListener('click', () => {
-                const detailsId = button.dataset.detailsId;
-                toggleDetails(detailsId, button);
-            });
-        });
+<!-- Taskbar -->
+<footer id="taskbar">
+  <button class="plain" id="start-button" aria-label="Start" aria-expanded="false" aria-controls="start-menu" title="Start">
+    <span class="orb" aria-hidden="true">EJ</span>
+  </button>
+  <div id="tasks" role="toolbar" aria-label="Open windows"></div>
+  <div id="tray">
+    <a class="plain tray-btn optional" href="https://portfolio.edvardi.com" target="_blank" rel="noopener" title="My clips: portfolio.edvardi.com" aria-label="My clips: portfolio.edvardi.com"><svg class="ico"><use href="#i-globe"/></svg></a>
+    <button class="plain tray-btn" data-open="help" title="Getting around: tips for using this site" aria-label="Getting around"><svg class="ico"><use href="#i-help"/></svg></button>
+    <div id="clock" title=""><div class="time"></div><div class="date"></div></div>
+    <button class="plain" id="show-desktop" title="Show desktop" aria-label="Show desktop"></button>
+  </div>
+</footer>
 
-        // Toggle Start Menu visibility
-        startButton.addEventListener('click', (event) => {
-    		event.stopPropagation(); // Prevent document click from immediately closing it
-    		startMenu.classList.toggle('show');
-	});
+<script>
+(() => {
+  const desktop = document.getElementById('desktop');
+  const tasks = document.getElementById('tasks');
+  const snapPreview = document.getElementById('snap-preview');
+  const startBtn = document.getElementById('start-button');
+  const startMenu = document.getElementById('start-menu');
+  const search = document.getElementById('sm-search');
+  const mobile = matchMedia('(max-width: 767px)');
+  const coarse = matchMedia('(pointer: coarse)');
+  const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)');
 
+  const PORTFOLIO = 'https://portfolio.edvardi.com';
+  const SNAP_EDGE = 3;
+  let topZ = 10;
+  let cascade = 0;
+  const state = new Map(); // id -> { mode: 'normal'|'max'|'left'|'right', restore: rect|null, task: el }
 
-        // Close Start Menu if clicked outside
-        document.addEventListener('click', (event) => {
-            if (startMenu.style.display === 'flex' && !startMenu.contains(event.target) && event.target !== startButton) {
-                hideStartMenu();
-			startMenu.classList.remove('show');
-            }
-        });
+  const deskSize = () => ({ w: desktop.clientWidth, h: desktop.clientHeight });
+  const rectOf = win => ({ x: win.offsetLeft, y: win.offsetTop, w: win.offsetWidth, h: win.offsetHeight });
+  function applyRect(win, r) {
+    win.style.left = r.x + 'px';
+    win.style.top = r.y + 'px';
+    win.style.width = r.w + 'px';
+    win.style.height = r.h + 'px';
+  }
+  function modeRect(mode) {
+    const { w, h } = deskSize();
+    if (mode === 'max') return { x: 0, y: 0, w, h };
+    if (mode === 'left') return { x: 0, y: 0, w: Math.round(w / 2), h };
+    if (mode === 'right') return { x: Math.round(w / 2), y: 0, w: w - Math.round(w / 2), h };
+    return null;
+  }
+  function animate(el, frames, ms) {
+    if (reduceMotion.matches || !el.animate) return Promise.resolve();
+    return el.animate(frames, { duration: ms, easing: 'cubic-bezier(.2,.8,.2,1)' }).finished.catch(() => {});
+  }
 
-        function hideStartMenu() {
-            startMenu.style.display = 'none';
+  /* ---------- Window lifecycle ---------- */
+  function openApp(id) {
+    const win = document.getElementById(id);
+    if (!win) return;
+    let s = state.get(id);
+    if (s && win.classList.contains('open')) {
+      if (win.classList.contains('minimized')) restoreFromMin(win);
+      else focusWin(win);
+      return;
+    }
+    if (!s) {
+      s = { mode: 'normal', restore: null, task: null, placed: false };
+      state.set(id, s);
+    }
+    if (!s.placed) {
+      const { w, h } = deskSize();
+      const ww = Math.min(+win.dataset.w || 480, w - 20);
+      const wh = Math.min(+win.dataset.h || 380, h - 20);
+      const x = Math.max(10, Math.min(w - ww - 10, Math.round((w - ww) / 2) - 120 + cascade * 28));
+      const y = Math.max(10, Math.min(h - wh - 10, Math.round((h - wh) / 2) - 70 + cascade * 28));
+      cascade = (cascade + 1) % 6;
+      applyRect(win, { x, y, w: ww, h: wh });
+      s.placed = true;
+    }
+    win.querySelectorAll('iframe[data-src]').forEach(f => { if (!f.getAttribute('src')) f.src = f.dataset.src; });
+    win.classList.add('open');
+    win.classList.remove('minimized');
+    s.task = addTask(win);
+    focusWin(win);
+    animate(win, [{ opacity: 0, transform: 'scale(.95)' }, { opacity: 1, transform: 'none' }], 180);
+  }
+
+  function closeApp(win) {
+    const s = state.get(win.id);
+    animate(win, [{ opacity: 1, transform: 'none' }, { opacity: 0, transform: 'scale(.95)' }], 140).then(() => {
+      win.classList.remove('open', 'active', 'minimized');
+      // Stop any playing media by reloading frames.
+      win.querySelectorAll('iframe').forEach(f => { const src = f.src; f.src = 'about:blank'; if (!f.dataset.src) f.src = src; else f.removeAttribute('src'); });
+      if (s && s.task) { s.task.remove(); s.task = null; }
+      focusTopmost();
+    });
+  }
+
+  function minimize(win) {
+    const s = state.get(win.id);
+    const t = s.task.getBoundingClientRect();
+    const r = win.getBoundingClientRect();
+    const dx = t.left + t.width / 2 - (r.left + r.width / 2);
+    const dy = t.top - (r.top + r.height / 2);
+    animate(win, [{ opacity: 1, transform: 'none' }, { opacity: 0, transform: `translate(${dx}px, ${dy}px) scale(.2)` }], 200).then(() => {
+      win.classList.add('minimized');
+      win.classList.remove('active');
+      s.task.classList.add('is-min');
+      focusTopmost();
+    });
+  }
+
+  function restoreFromMin(win) {
+    const s = state.get(win.id);
+    win.classList.remove('minimized');
+    s.task.classList.remove('is-min');
+    focusWin(win);
+    const t = s.task.getBoundingClientRect();
+    const r = win.getBoundingClientRect();
+    const dx = t.left + t.width / 2 - (r.left + r.width / 2);
+    const dy = t.top - (r.top + r.height / 2);
+    animate(win, [{ opacity: 0, transform: `translate(${dx}px, ${dy}px) scale(.2)` }, { opacity: 1, transform: 'none' }], 200);
+  }
+
+  function focusWin(win) {
+    document.querySelectorAll('.app-window.active').forEach(w => w !== win && w.classList.remove('active'));
+    win.classList.add('active');
+    win.style.zIndex = ++topZ;
+    tasks.querySelectorAll('.task').forEach(t => t.setAttribute('aria-pressed', String(t.dataset.win === win.id)));
+  }
+
+  function focusTopmost() {
+    const visible = [...document.querySelectorAll('.app-window.open:not(.minimized)')];
+    visible.sort((a, b) => (+b.style.zIndex || 0) - (+a.style.zIndex || 0));
+    if (visible[0]) focusWin(visible[0]);
+    else tasks.querySelectorAll('.task').forEach(t => t.setAttribute('aria-pressed', 'false'));
+  }
+
+  function setMode(win, mode) {
+    const s = state.get(win.id);
+    if (mode === s.mode) mode = 'normal';
+    if (s.mode === 'normal' && mode !== 'normal') s.restore = rectOf(win);
+    if (mode === 'normal') {
+      if (s.restore) applyRect(win, s.restore);
+    } else {
+      applyRect(win, modeRect(mode));
+    }
+    s.mode = mode;
+    win.classList.toggle('maximized', mode === 'max');
+    const maxBtn = win.querySelector('[data-act="max"]');
+    maxBtn.setAttribute('aria-label', mode === 'max' ? 'Restore' : 'Maximize');
+    maxBtn.title = maxBtn.getAttribute('aria-label');
+  }
+
+  /* ---------- Taskbar buttons ---------- */
+  function addTask(win) {
+    const existing = tasks.querySelector(`[data-win="${win.id}"]`);
+    if (existing) return existing;
+    const btn = document.createElement('button');
+    btn.className = 'plain task';
+    btn.dataset.win = win.id;
+    btn.setAttribute('aria-pressed', 'false');
+    const label = win.querySelector('.title-bar-text').textContent.trim();
+    btn.title = label;
+    btn.innerHTML = `<svg class="ico"><use href="#${win.dataset.icon}"/></svg><span></span>`;
+    btn.querySelector('span').textContent = label;
+    btn.addEventListener('click', () => {
+      if (win.classList.contains('minimized')) restoreFromMin(win);
+      else if (win.classList.contains('active')) minimize(win);
+      else focusWin(win);
+    });
+    tasks.appendChild(btn);
+    return btn;
+  }
+
+  /* ---------- Title bar: controls, drag, snap ---------- */
+  document.querySelectorAll('.app-window').forEach(win => {
+    ['n', 's', 'e', 'w', 'ne', 'nw', 'se', 'sw'].forEach(dir => {
+      const h = document.createElement('div');
+      h.className = 'rz ' + dir;
+      h.dataset.dir = dir;
+      win.appendChild(h);
+    });
+
+    win.addEventListener('pointerdown', () => focusWin(win), true);
+
+    win.querySelector('.window-footer [data-act="close"]')?.addEventListener('click', () => closeApp(win));
+    win.querySelectorAll('.title-bar-controls button').forEach(b => { b.title = b.getAttribute('aria-label'); });
+
+    win.querySelector('.title-bar-controls').addEventListener('click', e => {
+      const act = e.target.closest('[data-act]')?.dataset.act;
+      if (act === 'min') minimize(win);
+      else if (act === 'max') setMode(win, 'max');
+      else if (act === 'close') closeApp(win);
+    });
+
+    const bar = win.querySelector('.title-bar');
+    bar.addEventListener('dblclick', e => {
+      if (e.target.closest('.title-bar-controls') || mobile.matches) return;
+      setMode(win, 'max');
+    });
+
+    bar.addEventListener('pointerdown', e => {
+      if (e.button !== 0 || e.target.closest('.title-bar-controls') || mobile.matches) return;
+      e.preventDefault();
+      const s = state.get(win.id);
+      const start = { x: e.clientX, y: e.clientY };
+      let off = { x: e.clientX - win.offsetLeft, y: e.clientY - win.offsetTop };
+      let moved = false;
+      let snap = null;
+      bar.setPointerCapture(e.pointerId);
+      document.body.classList.add('dragging');
+
+      const onMove = ev => {
+        if (!moved && Math.hypot(ev.clientX - start.x, ev.clientY - start.y) < 4) return;
+        if (!moved && s.mode !== 'normal') {
+          // Pull a maximized/snapped window back to its normal size under the cursor.
+          const r = s.restore || { w: +win.dataset.w, h: +win.dataset.h };
+          const ratio = (ev.clientX - win.getBoundingClientRect().left) / win.offsetWidth;
+          s.mode = 'normal';
+          win.classList.remove('maximized');
+          win.querySelector('[data-act="max"]').setAttribute('aria-label', 'Maximize');
+          win.style.width = r.w + 'px';
+          win.style.height = r.h + 'px';
+          off = { x: Math.round(r.w * ratio), y: Math.min(off.y, 20) };
         }
+        moved = true;
+        const d = desktop.getBoundingClientRect();
+        const x = ev.clientX - d.left - off.x;
+        const y = Math.max(0, Math.min(d.height - 30, ev.clientY - d.top - off.y));
+        win.style.left = x + 'px';
+        win.style.top = y + 'px';
 
-
-        // Function to start dragging a window
-        function startDrag(e, bar) {
-            // Disable dragging on mobile devices (based on media query breakpoint)
-            if (window.innerWidth < 768) return;
-
-            const win = bar.parentElement;
-            focusWindow(win); // Bring window to front on drag start
-            
-            offsetX = e.clientX - win.offsetLeft;
-            offsetY = e.clientY - win.offsetTop;
-
-            function move(e) {
-                win.style.left = `${e.clientX - offsetX}px`;
-                win.style.top = `${e.clientY - offsetY}px`;
-            }
-
-            function stop() {
-                document.removeEventListener('mousemove', move);
-                document.removeEventListener('mouseup', stop);
-            }
-
-            document.addEventListener('mousemove', move);
-            document.addEventListener('mouseup', stop);
+        snap = ev.clientX <= SNAP_EDGE ? 'left'
+             : ev.clientX >= innerWidth - 1 - SNAP_EDGE ? 'right'
+             : ev.clientY <= SNAP_EDGE ? 'max' : null;
+        if (snap) {
+          const r = modeRect(snap);
+          Object.assign(snapPreview.style, { display: 'block', left: r.x + 'px', top: r.y + 'px', width: r.w + 'px', height: r.h + 'px', zIndex: topZ + 1 });
+        } else {
+          snapPreview.style.display = 'none';
         }
+      };
+      const onUp = () => {
+        bar.removeEventListener('pointermove', onMove);
+        bar.removeEventListener('pointerup', onUp);
+        bar.removeEventListener('pointercancel', onUp);
+        document.body.classList.remove('dragging');
+        snapPreview.style.display = 'none';
+        if (moved && snap) setMode(win, snap);
+      };
+      bar.addEventListener('pointermove', onMove);
+      bar.addEventListener('pointerup', onUp);
+      bar.addEventListener('pointercancel', onUp);
+    });
 
-        // Function to toggle resume details visibility
-        function toggleDetails(id, buttonElement) {
-            const el = document.getElementById(id);
-            // Check if currently shown
-            const isShowing = el.classList.contains('show');
+    /* Resize */
+    win.addEventListener('pointerdown', e => {
+      const dir = e.target.dataset?.dir;
+      if (!dir || e.button !== 0) return;
+      e.preventDefault();
+      e.stopPropagation();
+      const handle = e.target;
+      const s = state.get(win.id);
+      if (s.mode !== 'normal') {
+        s.mode = 'normal';
+        win.classList.remove('maximized');
+        win.querySelector('[data-act="max"]').setAttribute('aria-label', 'Maximize');
+      }
+      const r0 = rectOf(win);
+      const minW = 260, minH = 160;
+      const start = { x: e.clientX, y: e.clientY };
+      handle.setPointerCapture(e.pointerId);
+      document.body.classList.add('dragging');
 
-            // Close all other open resume details in this window's content
-            const allDetails = buttonElement.closest('.content').querySelectorAll('.resume-details');
-            allDetails.forEach(detail => {
-                if (detail.id !== id && detail.classList.contains('show')) {
-                    detail.classList.remove('show');
-                    // Find the corresponding button and deactivate it
-                    const correspondingButton = document.querySelector(`button[data-details-id="${detail.id}"]`);
-                    if (correspondingButton) {
-                        correspondingButton.classList.remove('active-resume-item');
-                    }
-                }
-            });
-
-            // Toggle the clicked one
-            el.classList.toggle('show');
-            buttonElement.classList.toggle('active-resume-item');
+      const onMove = ev => {
+        const dx = ev.clientX - start.x, dy = ev.clientY - start.y;
+        const r = { ...r0 };
+        if (dir.includes('e')) r.w = Math.max(minW, r0.w + dx);
+        if (dir.includes('s')) r.h = Math.max(minH, r0.h + dy);
+        if (dir.includes('w')) { r.w = Math.max(minW, r0.w - dx); r.x = r0.x + r0.w - r.w; }
+        if (dir.includes('n')) {
+          r.h = Math.max(minH, r0.h - dy);
+          r.y = r0.y + r0.h - r.h;
+          if (r.y < 0) { r.h += r.y; r.y = 0; }
         }
+        applyRect(win, r);
+      };
+      const onUp = () => {
+        handle.removeEventListener('pointermove', onMove);
+        handle.removeEventListener('pointerup', onUp);
+        handle.removeEventListener('pointercancel', onUp);
+        document.body.classList.remove('dragging');
+      };
+      handle.addEventListener('pointermove', onMove);
+      handle.addEventListener('pointerup', onUp);
+      handle.addEventListener('pointercancel', onUp);
+    });
+  });
 
-        // Function to open/toggle/focus a window and manage taskbar icons
-        function toggleWindow(id) {
-            const win = document.getElementById(id);
-            const isWindowVisible = win.style.display === 'block' && win.style.opacity === '1';
+  addEventListener('resize', () => {
+    const { w, h } = deskSize();
+    state.forEach((s, id) => {
+      const win = document.getElementById(id);
+      if (s.mode !== 'normal') applyRect(win, modeRect(s.mode));
+      else if (s.placed) {
+        // Keep windows reachable when the viewport shrinks.
+        win.style.left = Math.max(0, Math.min(win.offsetLeft, w - 80)) + 'px';
+        win.style.top = Math.max(0, Math.min(win.offsetTop, h - 30)) + 'px';
+      }
+    });
+  });
 
-            if (isWindowVisible) {
-                // Window is currently open, so close it
-                closeWindow(id);
-            } else {
-                // Window is not open, so open it
-                win.style.display = 'block'; // Make it visible for transition
-                win.style.opacity = '0'; // Start invisible
-                win.style.transform = 'scale(0.95)'; // Start scaled down
+  /* ---------- Desktop icons ---------- */
+  const icons = [...document.querySelectorAll('.desk-icon')];
+  const selectIcon = icon => icons.forEach(i => i.classList.toggle('selected', i === icon));
+  const activate = el => {
+    if (el.dataset.open) openApp(el.dataset.open);
+    else if (el.href) window.open(el.href, '_blank', 'noopener');
+  };
+  const singleTap = () => coarse.matches || mobile.matches;
 
-                // Force reflow for transition to work
-                void win.offsetWidth; 
+  icons.forEach(icon => {
+    const name = icon.textContent.trim();
+    icon.title = icon.dataset.open
+      ? (singleTap() ? `Open ${name}` : `Double-click to open ${name}`)
+      : `Opens ${icon.hostname} in a new tab`;
+    icon.addEventListener('click', e => {
+      e.stopPropagation();
+      if (singleTap()) {
+        if (icon.dataset.open) { e.preventDefault(); openApp(icon.dataset.open); }
+        return; // links follow normally on touch
+      }
+      e.preventDefault();
+      selectIcon(icon);
+      if (e.detail === 2) activate(icon); // double-click
+    });
+    icon.addEventListener('keydown', e => {
+      const i = icons.indexOf(icon);
+      if (e.key === 'Enter') { e.preventDefault(); activate(icon); }
+      else if (e.key === 'ArrowDown' || e.key === 'ArrowRight') { e.preventDefault(); const n = icons[Math.min(i + 1, icons.length - 1)]; n.focus(); selectIcon(n); }
+      else if (e.key === 'ArrowUp' || e.key === 'ArrowLeft') { e.preventDefault(); const n = icons[Math.max(i - 1, 0)]; n.focus(); selectIcon(n); }
+    });
+  });
 
-                win.style.opacity = '1'; // Fade in
-                win.style.transform = 'scale(1)'; // Scale up
-                focusWindow(win); // Bring to front
+  desktop.addEventListener('pointerdown', e => {
+    if (e.target === desktop || e.target.id === 'icons') selectIcon(null);
+  });
 
-                // Add to taskbar if not already there
-                if (!openWindows.has(id)) {
-                    openWindows.add(id);
-                    const btn = document.createElement('button');
-                    btn.className = 'task-icon';
-                    btn.id = `task-${id}`;
-                    // Changed to target title-bar-text for innerText
-                    btn.innerText = win.querySelector('.title-bar-text').innerText.replace('🎮 ', ''); 
-                    btn.onclick = () => focusWindow(win); // Clicking task icon focuses the window
-                    taskIconsContainer.appendChild(btn);
-                }
-                updateTaskbarActiveState();
-            }
-        }
+  /* ---------- Generic [data-open] / [data-href] buttons inside windows ---------- */
+  document.addEventListener('click', e => {
+    const opener = e.target.closest('.app-window [data-open], #start-menu [data-open], #tray [data-open]');
+    if (opener) { openApp(opener.dataset.open); hideStart(); return; }
+    const hrefBtn = e.target.closest('button[data-href]');
+    if (hrefBtn) window.open(hrefBtn.dataset.href, '_blank', 'noopener');
+  });
 
-        // Function to close a window
-        function closeWindow(id) {
-            const win = document.getElementById(id);
-            win.style.opacity = '0';
-            win.style.transform = 'scale(0.95)';
-            win.addEventListener('transitionend', function handler() {
-                win.style.display = 'none';
-                win.removeEventListener('transitionend', handler);
-                openWindows.delete(id); // Remove from open windows set
-                const taskIcon = document.getElementById(`task-${id}`);
-                if (taskIcon) {
-                    taskIconsContainer.removeChild(taskIcon);
-                }
-                updateTaskbarActiveState();
-            }, { once: true }); // Ensure handler runs only once
-        }
+  /* ---------- Tabs ---------- */
+  document.querySelectorAll('menu[role="tablist"]').forEach(list => {
+    const tabs = [...list.querySelectorAll('[role="tab"]')];
+    const select = tab => tabs.forEach(t => {
+      const on = t === tab;
+      t.setAttribute('aria-selected', String(on));
+      t.tabIndex = on ? 0 : -1;
+      document.getElementById(t.getAttribute('aria-controls')).hidden = !on;
+    });
+    tabs.forEach((tab, i) => {
+      tab.tabIndex = tab.getAttribute('aria-selected') === 'true' ? 0 : -1;
+      tab.addEventListener('click', () => select(tab));
+      tab.addEventListener('keydown', e => {
+        const d = e.key === 'ArrowRight' ? 1 : e.key === 'ArrowLeft' ? -1 : 0;
+        if (!d) return;
+        const next = tabs[(i + d + tabs.length) % tabs.length];
+        next.focus();
+        select(next);
+      });
+    });
+  });
 
-        // Function to bring a window to the front and update taskbar
-        function focusWindow(win) {
-            topZ++;
-            win.style.zIndex = topZ;
-            updateTaskbarActiveState(win.id);
-        }
+  /* ---------- Resume explorer ---------- */
+  const jobLinks = [...document.querySelectorAll('[data-job]')];
+  jobLinks.forEach(a => a.addEventListener('click', e => {
+    e.preventDefault();
+    jobLinks.forEach(l => l.removeAttribute('aria-current'));
+    a.setAttribute('aria-current', 'true');
+    document.querySelectorAll('.job-detail').forEach(d => { d.hidden = d.id !== a.dataset.job; });
+    document.getElementById('resume-status').textContent = a.textContent.trim();
+  }));
 
-        // Update active state of taskbar icons
-        function updateTaskbarActiveState(focusedId) {
-            document.querySelectorAll('.task-icon').forEach(icon => {
-                const windowId = icon.id.replace('task-', '');
-                if (windowId === focusedId) {
-                    icon.classList.add('active');
-                } else {
-                    icon.classList.remove('active');
-                }
-            });
-        }
+  document.getElementById('resume-count').textContent = `${jobLinks.length} positions`;
 
-        // Set up initial state: ensure all windows are hidden initially, and potentially open one by default
-        document.addEventListener('DOMContentLoaded', () => {
-            document.querySelectorAll('.window').forEach(win => {
-                win.style.display = 'none'; // Ensure they are all hidden by default
-                win.style.opacity = '0';
-                win.style.transform = 'scale(0.95)';
-            });
-            // Optionally open the 'about' window on load
-            toggleWindow('about');
-        });
+  /* ---------- Contact: copy email ---------- */
+  document.querySelectorAll('[data-copy]').forEach(btn => btn.addEventListener('click', async () => {
+    const status = document.getElementById('contact-status');
+    try {
+      await navigator.clipboard.writeText(btn.dataset.copy);
+      status.textContent = 'Email address copied';
+    } catch {
+      status.textContent = btn.dataset.copy;
+    }
+  }));
 
-        // Add event listener to each window to bring it to front on click
-        document.querySelectorAll('.window').forEach(win => {
-            win.addEventListener('mousedown', () => focusWindow(win));
-        });
+  /* ---------- Start menu ---------- */
+  function showStart() {
+    startMenu.hidden = false;
+    startBtn.setAttribute('aria-expanded', 'true');
+    search.value = '';
+    filterStart('');
+    animate(startMenu, [{ opacity: 0, transform: 'translateY(8px)' }, { opacity: 1, transform: 'none' }], 150);
+    if (!coarse.matches) search.focus();
+  }
+  function hideStart() {
+    if (startMenu.hidden) return;
+    startMenu.hidden = true;
+    startBtn.setAttribute('aria-expanded', 'false');
+  }
+  startBtn.addEventListener('click', e => {
+    e.stopPropagation();
+    startMenu.hidden ? showStart() : hideStart();
+  });
+  document.addEventListener('pointerdown', e => {
+    if (!startMenu.hidden && !startMenu.contains(e.target) && !startBtn.contains(e.target)) hideStart();
+  });
+  startMenu.addEventListener('click', e => {
+    if (e.target.closest('a')) hideStart();
+  });
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape' && !startMenu.hidden) { hideStart(); startBtn.focus(); }
+  });
 
-    </script>
+  const startItems = [...startMenu.querySelectorAll('.sm-item, .sm-link')];
+  function filterStart(q) {
+    q = q.trim().toLowerCase();
+    let any = false;
+    startItems.forEach(el => {
+      const hit = !q || el.textContent.toLowerCase().includes(q) || (el.href || '').toLowerCase().includes(q);
+      el.parentElement.hidden = !hit;
+      el.classList.remove('kb');
+      if (hit) any = true;
+    });
+    startMenu.querySelectorAll('.sm-sep').forEach(s => { s.hidden = !!q; });
+    document.getElementById('sm-empty').hidden = any;
+    if (q) startItems.find(el => !el.parentElement.hidden)?.classList.add('kb');
+  }
+  search.addEventListener('input', () => filterStart(search.value));
+  search.addEventListener('keydown', e => {
+    if (e.key !== 'Enter') return;
+    const first = startItems.find(el => el.classList.contains('kb')) || startItems.find(el => !el.parentElement.hidden);
+    if (!first) return;
+    e.preventDefault();
+    if (first.dataset.open) { openApp(first.dataset.open); hideStart(); }
+    else { window.open(first.href, '_blank', 'noopener'); hideStart(); }
+  });
+
+  document.getElementById('close-all').addEventListener('click', () => {
+    document.querySelectorAll('.app-window.open').forEach(closeApp);
+    hideStart();
+  });
+
+  /* ---------- Show desktop ---------- */
+  let peeked = [];
+  document.getElementById('show-desktop').addEventListener('click', () => {
+    const visible = [...document.querySelectorAll('.app-window.open:not(.minimized)')];
+    if (visible.length) {
+      peeked = visible;
+      visible.forEach(w => { w.classList.add('minimized'); w.classList.remove('active'); state.get(w.id).task.classList.add('is-min'); });
+      focusTopmost();
+    } else {
+      peeked.filter(w => w.classList.contains('open')).forEach(w => {
+        w.classList.remove('minimized');
+        state.get(w.id).task.classList.remove('is-min');
+      });
+      peeked = [];
+      focusTopmost();
+    }
+  });
+
+  /* ---------- Clock ---------- */
+  const clock = document.getElementById('clock');
+  function tick() {
+    const now = new Date();
+    clock.querySelector('.time').textContent = now.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+    clock.querySelector('.date').textContent = now.toLocaleDateString();
+    clock.title = now.toLocaleDateString([], { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+  }
+  tick();
+  setInterval(tick, 10000);
+
+  /* ---------- Help ---------- */
+  const store = {
+    get(k) { try { return localStorage.getItem(k); } catch { return null; } },
+    set(k, v) { try { localStorage.setItem(k, v); } catch {} },
+  };
+  const startupBox = document.getElementById('help-startup');
+  startupBox.checked = store.get('ej-help') === 'always';
+  startupBox.addEventListener('change', () => store.set('ej-help', startupBox.checked ? 'always' : 'seen'));
+
+  function snapTo(id, mode) {
+    openApp(id);
+    const s = state.get(id);
+    if (s.mode !== mode) setMode(document.getElementById(id), mode);
+  }
+  document.querySelector('[data-demo="compare"]').addEventListener('click', () => {
+    document.getElementById('work-reel-tab').click();
+    snapTo('work', 'left');
+    snapTo('resume', 'right');
+    closeApp(document.getElementById('help'));
+  });
+
+  /* ---------- Initial window ---------- */
+  const openFromHash = () => {
+    const id = location.hash.slice(1);
+    if (id && document.getElementById(id)?.classList.contains('app-window')) { openApp(id); return true; }
+    return false;
+  };
+  addEventListener('hashchange', openFromHash);
+  if (!openFromHash() && !mobile.matches) openApp('about');
+  const helpPref = store.get('ej-help');
+  if (!helpPref || helpPref === 'always') {
+    openApp('help');
+    if (!helpPref) store.set('ej-help', 'seen');
+  }
+})();
+</script>
 </body>
 </html>
